@@ -7,8 +7,11 @@ int main() {
 	QInt a, b, c;
 	cout << "Nhap so a = ";
 	cin >> a;
+	cout << "Nhap so b = ";
+	cin >> b;
 
-	cout << "Ma hexa cua a: " << a.toHexa() << endl;
+	c = a * b;
+	cout << "a * b = " << c << endl;
 
 	system("pause");
 	return 0;
