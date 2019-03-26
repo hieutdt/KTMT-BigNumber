@@ -845,6 +845,7 @@ QInt QInt::operator^(QInt &b) {
 	string B = b.toBinary();
 	stringstream ss;
 	string ans;
+	QInt res;
 
 	for (int i = 0; i < 128; i++)
 		ss << '0';
@@ -863,10 +864,10 @@ QInt QInt::operator^(QInt &b) {
 
 	for (int i = ans.length() - 1; i >= 0; i--) {
 		if (ans[i] == '1')
-			changeBit(127 - i);
+			res.changeBit(127 - i);
 	}
 
-	return *this;
+	return res;
 }
 
 QInt QInt::operator~() {
@@ -877,4 +878,44 @@ QInt QInt::operator~() {
 		res.changeBit(i);
 
 	return res;
+}
+
+void QInt::ror(int n) {
+	string bin = this->toBinary();
+	stringstream ss;
+	stringstream ss2;
+
+	for (int i = 0; i < n; i++)
+		ss2 << bin[i];
+
+	bin.erase(0, n);
+	ss << bin << ss2.str();
+
+	bin = ss.str();
+
+	for (int i = 0; i < 4; i++)
+		this->data[i] = 0;
+
+	for (int i = bin.length() - 1; i >= 0; i--) {
+		if (bin[i] == '1')
+			changeBit(127 - i);
+	}
+}
+
+void QInt::rol(int n) {
+	string bin = this->toBinary();
+	string sub = bin.substr(128 - n, n);
+	bin.erase(128 - n, n);
+	stringstream ss;
+
+	ss << sub << bin;
+	bin = ss.str();
+
+	for (int i = 0; i < 4; i++)
+		this->data[i] = 0;
+
+	for (int i = bin.length() - 1; i >= 0; i--) {
+		if (bin[i] == '1')
+			changeBit(127 - i);
+	}
 }

@@ -45,6 +45,9 @@ public:
 	QInt operator|(QInt &b);
 	QInt operator^(QInt &b);
 	QInt operator~();
+	
+	void rol(int n);
+	void ror(int n);
 
 	bool operator>(QInt &b);
 	bool operator<(QInt &b);

@@ -16,6 +16,12 @@ int main() {
 	c = ~a;
 	cout << c << endl;
 
+	a.rol(5);
+	cout << "a = " << a << endl;
+
+	a.ror(5);
+	cout << "a = " << a << endl;
+
 	system("pause");
 	return 0;
 }
