@@ -193,6 +193,69 @@ void QInt::binaryShiftRight(string &bytes, int n) {
 	bytes = ss.str();
 }
 
+string QInt::sumBinaryString(string &a, string &b) {
+	int ex = 0;
+	string ans;
+	stringstream ss;
+	for (int i = 0; i < 128; i++) {
+		ss << "0";
+	}
+	ans = ss.str();
+
+	for (int i = 127; i >= 0; i--) {
+		int aDigit = a[i] - 48;
+		int bDigit = b[i] - 48;
+
+		if (aDigit + bDigit + ex == 0) {
+			continue;
+		}
+		else if (aDigit + bDigit + ex == 1) {
+			ans[i] = '1';
+			ex = 0;
+		}
+		else if (aDigit + bDigit + ex == 2) {
+			ex = 1;
+		}
+		else if (aDigit + bDigit + ex == 3) {
+			ans[i] = '1';
+			ex = 1;
+		}
+	}
+
+	return ans;
+}
+
+string QInt::subBinaryString(string &a, string b) {
+	//Dao nguoc gia tri cua b
+	for (int i = 0; i < 128; i++) {
+		if (b[i] == '1')
+			b[i] = '0';
+		else
+			b[i] = '1';
+	}
+
+	int ex = 0;
+	for (int i = b.length() - 1; i >= 0; i--) {
+		if (b[i] == '0' && ex == 0) {
+			b[i] = '1';
+			break;
+		}
+		else if (b[i] == '0' && ex == 1) {
+			b[i] = '1';
+			break;
+		}
+		else if (b[i] == '1' && ex == 0) {
+			b[i] = '0';
+			ex = 1;
+		}
+		else { //bytes[i] == '1' && ex == 1
+			b[i] = '0';
+		}
+	}
+
+	return sumBinaryString(a, b);
+}
+
 //PUBLIC METHODS ////////////////////////////////////////////
 
 QInt::QInt() {
@@ -300,38 +363,6 @@ QInt QInt::operator+(QInt &b) {
 		}
 		else if (abit + bbit + ex == 3) {
 			ans.changeBit(i);
-			ex = 1;
-		}
-	}
-
-	return ans;
-}
-
-string QInt::sumBinaryString(string &a, string &b) {
-	int ex = 0;
-	string ans;
-	stringstream ss;
-	for (int i = 0; i < 128; i++) {
-		ss << "0";
-	}
-	ans = ss.str();
-
-	for (int i = 127; i >= 0; i--) {
-		int aDigit = a[i] - 48;
-		int bDigit = b[i] - 48;
-
-		if (aDigit + bDigit + ex == 0) {
-			continue;
-		}
-		else if (aDigit + bDigit + ex == 1) {
-			ans[i] = '1';
-			ex = 0;
-		}
-		else if (aDigit + bDigit + ex == 2) {
-			ex = 1;
-		}
-		else if (aDigit + bDigit + ex == 3) {
-			ans[i] = '1';
 			ex = 1;
 		}
 	}
@@ -599,3 +630,156 @@ QInt QInt::operator*(QInt b) {
 	return *this;
 }
 
+QInt QInt::operator/(QInt m) {
+	string Q = this->toBinary();
+	string M = m.toBinary();
+	string A;
+	int k = 128;
+	stringstream ss;
+	string ans;
+
+	bool isNegativeQ = (Q[0] == '1');
+	bool isNegativeM = (M[0] == '1');
+
+	if (isNegativeQ) {
+		//Chuyen sang day nhi phan cua so duong
+		for (int i = 0; i < 128; i++) {
+			if (Q[i] == '1')
+				Q[i] = '0';
+			else
+				Q[i] = 1;
+		}
+
+		int ex = 0;
+		for (int i = Q.length() - 1; i >= 0; i--) {
+			if (Q[i] == '0' && ex == 0) {
+				Q[i] = '1';
+				break;
+			}
+			else if (Q[i] == '0' && ex == 1) {
+				Q[i] = '1';
+				break;
+			}
+			else if (Q[i] == '1' && ex == 0) {
+				Q[i] = '0';
+				ex = 1;
+			}
+			else { //bytes[i] == '1' && ex == 1
+				Q[i] = '0';
+			}
+		}
+	}
+
+	if (isNegativeM) {
+		//Chuyen sang day nhi phan cua so duong
+		for (int i = 0; i < 128; i++) {
+			if (M[i] == '1')
+				M[i] = '0';
+			else
+				M[i] = '1';
+		}
+
+		int ex = 0;
+		for (int i = M.length() - 1; i >= 0; i--) {
+			if (M[i] == '0' && ex == 0) {
+				M[i] = '1';
+				break;
+			}
+			else if (M[i] == '0' && ex == 1) {
+				M[i] = '1';
+				break;
+			}
+			else if (M[i] == '1' && ex == 0) {
+				M[i] = '0';
+				ex = 1;
+			}
+			else { //bytes[i] == '1' && ex == 1
+				M[i] = '0';
+			}
+		}
+	}
+
+	if (Q[0] == '1') {
+		for (int i = 0; i < 128; i++)
+			ss << "1";
+	}
+	else {
+		for (int i = 0; i < 128; i++)
+			ss << "0";
+	}
+	A = ss.str();
+
+	ss.str("");
+	ss << A << Q;
+	ans = ss.str();
+
+	while (k > 0) {
+		binaryShiftLeft(ans, 1); //shift left [A,Q]
+
+		for (int i = 0; i < 128; i++) //Gan lai gia tri cho A
+			A[i] = ans[i];
+
+		for (int i = 0; i < 128; i++) //Gai lai gia tri cho Q
+			Q[i] = ans[i + 128];
+
+		A = subBinaryString(A, M);
+		
+		//Gan lai A vao [A,Q]
+		for (int i = 0; i < 128; i++)
+			ans[i] = A[i];
+
+		if (A[0] == '1') { //A < 0
+			Q[127] = '0';
+			ans[255] = '0';
+
+			A = sumBinaryString(A, M);
+			//Gai lai A vao [A, Q]
+			for (int i = 0; i < 128; i++)
+				ans[i] = A[i];
+		}
+		else {
+			Q[127] = '1';
+			ans[255] = '1';
+		}
+
+		k--;
+	}
+
+	if (isNegativeM + isNegativeQ == 1) { //Trai dau
+		for (int i = 0; i < 128; i++)
+			if (Q[i] == '0')
+				Q[i] = '1';
+			else
+				Q[i] = '0';
+
+		int ex = 0;
+		for (int i = Q.length() - 1; i >= 0; i--) {
+			if (Q[i] == '0' && ex == 0) {
+				Q[i] = '1';
+				break;
+			}
+			else if (Q[i] == '0' && ex == 1) {
+				Q[i] = '1';
+				break;
+			}
+			else if (Q[i] == '1' && ex == 0) {
+				Q[i] = '0';
+				ex = 1;
+			}
+			else { //bytes[i] == '1' && ex == 1
+				Q[i] = '0';
+			}
+		}
+	}
+
+	//Tra ve gia tri QInt
+	for (int i = 0; i < QInt::NUM_OF_INT; i++)
+		this->data[i] = 0;
+
+	for (int i = Q.length() - 1; i >= 0; i--) {
+		if (Q[i] == '1')
+			changeBit(127 - i);
+	}
+
+	return *this;
+}

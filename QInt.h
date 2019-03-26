@@ -24,6 +24,7 @@ public:
 	static void binaryShiftLeft(string &bin, int n);
 	static void binaryShiftRight(string &bin, int n);
 	static string sumBinaryString(string &a, string &b);
+	static string subBinaryString(string &a, string b);
 
 public:
 	QInt();
@@ -40,6 +41,8 @@ public:
 	QInt operator/(QInt b);
 	QInt operator<<(int n);
 	QInt operator>>(int n);
+	QInt operator&(QInt &b);
+	QInt operator|(QInt &b);
 
 	bool operator>(QInt &b);
 	bool operator<(QInt &b);

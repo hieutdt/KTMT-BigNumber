@@ -10,9 +10,10 @@ int main() {
 	cout << "Nhap so b = ";
 	cin >> b;
 
-	c = a * b;
-	cout << "a * b = " << c << endl;
+	c = a / b;
+	cout << "a / b = " << c << endl;
 
 	system("pause");
 	return 0;
 }
+
