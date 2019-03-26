@@ -11,7 +11,10 @@ int main() {
 	cin >> b;
 
 	c = a / b;
-	cout << "a / b = " << c << endl;
+	cout << "c = " << c << endl;
+	cout << "a = " << a << endl;
+	c = ~a;
+	cout << c << endl;
 
 	system("pause");
 	return 0;

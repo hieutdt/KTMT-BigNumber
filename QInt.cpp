@@ -515,6 +515,7 @@ string QInt::toHexa() {
 QInt QInt::operator*(QInt b) {
 	string A = this->toBinary();
 	string B = b.toBinary();
+	QInt res;
 
 	bool isNegativeA = (A[0] == '1');
 	bool isNegativeB = (B[0] == '1');
@@ -617,17 +618,14 @@ QInt QInt::operator*(QInt b) {
 			}
 		}
 	}
-
-	//Tra ve gia tri QInt
-	for (int i = 0; i < QInt::NUM_OF_INT; i++)
-		this->data[i] = 0;
-
+	
+	//Tra ve QInt
 	for (int i = sum.length() - 1; i >= 0; i--) {
 		if (sum[i] == '1')
-			changeBit(127 - i);
+			res.changeBit(127 - i);
 	}
 
-	return *this;
+	return res;
 }
 
 QInt QInt::operator/(QInt m) {
@@ -637,6 +635,7 @@ QInt QInt::operator/(QInt m) {
 	int k = 128;
 	stringstream ss;
 	string ans;
+	QInt res;
 
 	bool isNegativeQ = (Q[0] == '1');
 	bool isNegativeM = (M[0] == '1');
@@ -772,14 +771,110 @@ QInt QInt::operator/(QInt m) {
 		}
 	}
 
-	//Tra ve gia tri QInt
+	//Tra ve QInt
+	for (int i = Q.length() - 1; i >= 0; i--) {
+		if (Q[i] == '1')
+			res.changeBit(127 - i);
+	}
+
+	return res;
+}
+
+QInt QInt::operator&(QInt &b) {
+	string A = this->toBinary();
+	string B = b.toBinary();
+	stringstream ss;
+	string ans;
+	QInt res;
+
+	for (int i = 0; i < 128; i++)
+		ss << '0';
+	ans = ss.str();
+
+	for (int i = 0; i < 128; i++) {
+		int digitA = A[i] - 48;
+		int digitB = B[i] - 48;
+		if (digitA + digitB == 2)
+			ans[i] = '1';
+		else
+			ans[i] = '0';
+	}
+
 	for (int i = 0; i < QInt::NUM_OF_INT; i++)
 		this->data[i] = 0;
 
-	for (int i = Q.length() - 1; i >= 0; i--) {
-		if (Q[i] == '1')
+	for (int i = ans.length() - 1; i >= 0; i--) {
+		if (ans[i] == '1')
+			res.changeBit(127 - i);
+	}
+
+	return res;
+}
+
+QInt QInt::operator|(QInt &b) {
+	string A = this->toBinary();
+	string B = b.toBinary();
+	stringstream ss;
+	string ans;
+	QInt res;
+
+	for (int i = 0; i < 128; i++)
+		ss << " ";
+	ans = ss.str();
+
+	for (int i = 0; i < 128; i++) {
+		int digitA = A[i] - 48;
+		int digitB = B[i] - 48;
+		if (digitA + digitB >= 1)
+			ans[i] = '1';
+		else
+			ans[i] = '0';
+	}
+
+
+	for (int i = ans.length() - 1; i >= 0; i--) {
+		if (ans[i] == '1')
+			res.changeBit(127 - i);
+	}
+
+	return res;
+}
+
+QInt QInt::operator^(QInt &b) {
+	string A = this->toBinary();
+	string B = b.toBinary();
+	stringstream ss;
+	string ans;
+
+	for (int i = 0; i < 128; i++)
+		ss << '0';
+	ans = ss.str();
+
+	for (int i = 0; i < 128; i++) {
+		if (A[i] != B[i])
+			ans[i] = '1';
+		else
+			ans[i] = '0';
+	}
+
+	//Dua ve QInt;
+	for (int i = 0; i < QInt::NUM_OF_INT; i++)
+		this->data[i] = 0;
+
+	for (int i = ans.length() - 1; i >= 0; i--) {
+		if (ans[i] == '1')
 			changeBit(127 - i);
 	}
 
 	return *this;
+}
+
+QInt QInt::operator~() {
+	string bin = this->toBinary();
+	QInt res = *this;
+
+	for (int i = 0; i < 128; i++)
+		res.changeBit(i);
+
+	return res;
 }

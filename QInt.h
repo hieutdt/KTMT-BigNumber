@@ -43,6 +43,8 @@ public:
 	QInt operator>>(int n);
 	QInt operator&(QInt &b);
 	QInt operator|(QInt &b);
+	QInt operator^(QInt &b);
+	QInt operator~();
 
 	bool operator>(QInt &b);
 	bool operator<(QInt &b);
