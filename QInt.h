@@ -12,15 +12,18 @@ public:
 	const static int NUM_OF_INT = 4;
 	int data[NUM_OF_INT];
 
-
-	int oddToOne(char c);
 	void changeBit(int pos);
 	int getBit(int post);
 	void addToOne();
 	void stringToQInt(string val);
+
+	static int oddToOne(char c);
 	static string addString(string a, string b);
-	string stringDivTwo(string s);
+	static string stringDivTwo(string s);
 	static string twoPowN(int n);
+	static void binaryShiftLeft(string &bin, int n);
+	static void binaryShiftRight(string &bin, int n);
+	static string sumBinaryString(string &a, string &b);
 
 public:
 	QInt();
@@ -33,8 +36,8 @@ public:
 	void operator=(const QInt &n);
 	QInt operator+(QInt &b);
 	QInt operator-(QInt &b);
-	//QInt operator*(QInt &b);
-	//QInt operator/(QInt &b);
+	QInt operator*(QInt b);
+	QInt operator/(QInt b);
 	QInt operator<<(int n);
 	QInt operator>>(int n);
 
