@@ -1,7 +1,2 @@
-﻿  QInt.cpp
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qint.cpp(19): warning C4018: '<': signed/unsigned mismatch
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qint.cpp(87): warning C4018: '<': signed/unsigned mismatch
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qint.cpp(477): warning C4018: '<': signed/unsigned mismatch
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qint.cpp(487): warning C4018: '<': signed/unsigned mismatch
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qint.cpp(491): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
-  Demo.vcxproj -> C:\Users\Tran Dinh Ton Hieu\Documents\Visual Studio 2017\Projects\KTMT_DoAn\Debug\Demo.exe
+﻿  main.cpp
+  Demo.vcxproj -> D:\Documents\SolutionVS\KTMT-BigNumber\Debug\Demo.exe

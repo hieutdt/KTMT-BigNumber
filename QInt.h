@@ -1,3 +1,6 @@
+#ifndef _QINT_H
+#define _QINT_H
+
 #pragma once
 
 #include <iostream>
@@ -30,7 +33,7 @@ public:
 	QInt();
 	QInt(string x);
 
-	string toBinary();
+	string toBinary(bool isClean=0);
 	string toString();
 	string toHexa();
 
@@ -62,3 +65,5 @@ public:
 	friend ostream& operator<<(ostream& os, QInt &n);
 	friend istream& operator>>(istream& is, QInt &n);
 };
+
+#endif

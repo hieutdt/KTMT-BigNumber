@@ -267,7 +267,7 @@ QInt::QInt(string val) {
 	this->stringToQInt(val);
 }
 
-string QInt::toBinary() {
+string QInt::toBinary(bool isClean) {
 	stringstream ss;
 	
 	for (int i = 0; i < QInt::NUM_OF_INT * 32; i++) {
@@ -277,7 +277,9 @@ string QInt::toBinary() {
 
 	string ans = ss.str();
 	std::reverse(ans.begin(), ans.end());
-
+	if (isClean == 1) {
+		while (ans[0]=='0' && ans.length()>1) ans.erase(0,1);
+	}
 	return ans;
 }
 
