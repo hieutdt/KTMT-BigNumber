@@ -9,7 +9,7 @@ int QInt::oddToOne(char c) {
 	return 0;
 }
 
-string QInt::stringDivTwo(string s) {
+string QInt::stringDivTwo(string s, bool isKeepZero) {
 	stringstream ss;
 	ss << "";
 
@@ -22,7 +22,7 @@ string QInt::stringDivTwo(string s) {
 		if (digit != 0)
 			firstZero = false;
 
-		if (!firstZero)
+		if (!firstZero || isKeepZero)
 			ss << digit;
 
 		additive = QInt::oddToOne(s[i]) * 5;
@@ -158,10 +158,20 @@ string QInt::twoPowN(int n) {
 	string result = "1";
 	if (n == 0)
 		return "1";
-
-	for (int i = 0; i < n; i++)
-		result = QInt::addString(result, result);
-
+	else if (n > 0) {
+		for (int i = 0; i < n; i++)
+			result = QInt::addString(result, result);
+	}
+	else{
+		for (int i = -1; i >= n; i--) {
+			if (QInt::oddToOne(result[result.length() - 1]) == 1)
+				result += "0";
+			if((result[0]=='1' || result[0]=='0') && i<-1)
+				result = QInt::stringDivTwo(result,1);
+			else 
+				result = QInt::stringDivTwo(result,0);
+		}
+	}
 	return result;
 }
 

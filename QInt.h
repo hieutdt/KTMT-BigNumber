@@ -22,7 +22,7 @@ public:
 
 	static int oddToOne(char c);
 	static string addString(string a, string b);
-	static string stringDivTwo(string s);
+	static string stringDivTwo(string s, bool isKeepZero = 0);
 	static string twoPowN(int n);
 	static void binaryShiftLeft(string &bin, int n);
 	static void binaryShiftRight(string &bin, int n);

@@ -4,8 +4,10 @@
 using namespace std;
 
 int main() {
-	QFloat qfA("12.625");
-	cout << qfA << endl;
+	QFloat qfA;
+	qfA.scanDec("1.2");
+	cout << qfA.toBinary() << endl;
+	cout << qfA.toString() << endl;
 	/*QInt a, b, c;
 	cout << "Nhap so a = ";
 	cin >> a;
