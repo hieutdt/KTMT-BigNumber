@@ -1,6 +1,7 @@
 ﻿  QFloat.cpp
 c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(29): warning C4018: '>': signed/unsigned mismatch
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(50): warning C4018: '<': signed/unsigned mismatch
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(58): warning C4018: '<': signed/unsigned mismatch
-c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(239): warning C4018: '<': signed/unsigned mismatch
+c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(51): warning C4018: '<': signed/unsigned mismatch
+c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(70): warning C4018: '<': signed/unsigned mismatch
+c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(80): warning C4018: '<': signed/unsigned mismatch
+c:\users\tran dinh ton hieu\documents\visual studio 2017\projects\ktmt_doan\demo\qfloat.cpp(291): warning C4018: '<': signed/unsigned mismatch
   Demo.vcxproj -> C:\Users\Tran Dinh Ton Hieu\Documents\Visual Studio 2017\Projects\KTMT_DoAn\Debug\Demo.exe

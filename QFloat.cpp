@@ -37,7 +37,27 @@ void QFloat::scanDec(string s)
 			qFrac += "0";
 	}
 	
-	int e = (qInt.toBinary(1).length() - 1) + 16383; // So Exponent, so bias 15 bit
+	int e = 0;
+	string bInt = qInt.toBinary();
+	bool founded = false;
+	for (int i = bInt.length() - 1; i >= 0; i--)
+		if (bInt[i] == '1') {
+			e = bInt.length() - i;
+			founded = true;
+			break;
+		}
+
+	if (!founded) { //phan so nguyen la 0
+		for (int i = 0; i < qFrac.length(); i++) {
+			if (qFrac[i] == '1') {
+				e = - (i + 1);
+				founded = true;
+				break;
+			}
+		}
+	}
+
+	e += 16383; // So Exponent, so bias 15 bit
 	if (e == 16383 && sInt=="0") e = 0;
 	bitset<15> bE(e); // Exponent sang Binary
 	for (int i = 0; i <15; i++)
@@ -51,6 +71,8 @@ void QFloat::scanDec(string s)
 	{
 		this->data[127 - 1 - 15 - i] = (significand[i] == '1' ? 1 : 0);
 	}
+
+	cout << this->data.to_string() << endl;
 }
 
 void QFloat::scanBin(string s)
@@ -64,6 +86,8 @@ void QFloat::scanBin(string s)
 string QFloat::toString()
 {
 	string result = (this->data[127] == 1?"-":"+"); // Kiem tra dau
+	string bInt;
+	string bFrac;
 
 	bitset<15> bE; // Exponent
 	for (int i = 0; i < 15; i++)
@@ -74,19 +98,40 @@ string QFloat::toString()
 	int E = bE.to_ulong() - 16383; // Chuyen to Exponent sang so mu
 	if (E == -16383) E = 0;
 
-	string bInt = '1' + this->data.to_string().substr(16,E); // Phan nguyen o dang Binary
-	string bFrac = this->data.to_string().substr(16 + E); // Phan thap phan o dang Binary
-	// Xoa so 0 thua o phia ben phai phan Thap Phan
 
+	if (E >= 0) {
+		bInt = '1' + this->data.to_string().substr(16, E); // Phan nguyen o dang Binary
+		bFrac = this->data.to_string().substr(16 + E); // Phan thap phan o dang Binary
+		// Xoa so 0 thua o phia ben phai phan Thap Phan
+	}
+	else {
+		bFrac = this->data.to_string().substr(16);
+	}
+
+	//Xoa so 0 thua sau phan thap phan
 	int count = 0;
-	for (int i = bFrac.length(); i >= 0; i--)
+	for (int i = bFrac.length() - 1; i >= 0; i--)
 		if (bFrac[i] != '0')
 			break;
 		else
 			count++;
 	bFrac.erase(bFrac.length() - count);
 
-	result += QInt::binaryToDecimal(bInt) + '.';
+	//In phan nguyen
+	if (E >= 0)
+		result += QInt::binaryToDecimal(bInt) + '.';
+	else {
+		result += "0.";
+	}
+
+	//In phan thap phan
+	stringstream ss;
+	for (int i = 0; i < (-1 - E) - 1; i++) {
+		ss << "0";
+	}
+	ss << bFrac;
+	bFrac = ss.str();
+	
 	string sInt = "";
 	string pow;
 	int tLength = bFrac.length();
@@ -203,8 +248,15 @@ QFloat QFloat::operator*(QFloat b) {
 	}
 	sigB.erase(sigB.length() - count);
 
+	if (sigA.length() > 64)
+		sigA.erase(64);
+	if (sigB.length() > 64)
+		sigB.erase(64);
+
 	int nA = sigA.length() - 1;
 	int nB = sigB.length() - 1;
+
+
 
 	//Nhan 2 phan sig
 	QInt int_sigA;

@@ -7,11 +7,7 @@ int main() {
 	QFloat a, b;
 	cout << "a = ";
 	cin >> a;
-	cout << "b = ";
-	cin >> b;
-	
-	QFloat c = a * b;
-	cout << c << endl;
+	cout << "So vua nhap: " << a << endl;
 
 	system("pause");
 	return 0;
