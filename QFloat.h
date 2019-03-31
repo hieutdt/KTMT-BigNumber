@@ -14,8 +14,10 @@ class QFloat {
 private: 
 	bitset<128> data;
 	string addFracString(string a, string b); // cong phan thap phan
+	int getExponent();
 public:
 	QFloat();
+	QFloat(string value);
 
 	string toString(); // In ra so cham dong
 	string toBinary(); // In ra nhi phan
@@ -25,6 +27,9 @@ public:
 
 	friend ostream& operator<<(ostream& os, QFloat &n);
 	friend istream& operator>>(istream& is, QFloat &n);
+
+	QFloat operator/(QFloat b);
+	QFloat operator*(QFloat b);
 };
 
 #endif

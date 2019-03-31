@@ -26,10 +26,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="QFloat.h">
+    <ClInclude Include="QInt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="QInt.h">
+    <ClInclude Include="QFloat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

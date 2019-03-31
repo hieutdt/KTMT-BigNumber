@@ -18,7 +18,8 @@ public:
 	void changeBit(int pos);
 	int getBit(int post);
 	void addToOne();
-	void stringToQInt(string val);
+	void DecToQInt(string val);
+	void BinToQInt(string val);
 
 	static int oddToOne(char c);
 	static string addString(string a, string b);

@@ -73,7 +73,7 @@ void QInt::addToOne() {
 	}
 }
 
-void QInt::stringToQInt(string val) {
+void QInt::DecToQInt(string val) {
 	bool isNegative = false;
 
 	//Neu la so am thi xoa ky tu dau tien
@@ -274,7 +274,7 @@ QInt::QInt() {
 }
 
 QInt::QInt(string val) {
-	this->stringToQInt(val);
+	this->DecToQInt(val);
 }
 
 string QInt::toBinary(bool isClean) {
@@ -301,7 +301,7 @@ ostream& operator<<(ostream &os, QInt &n) {
 istream& operator>>(istream &is, QInt &n) {
 	string tmp;
 	is >> tmp;
-	n.stringToQInt(tmp);
+	n.DecToQInt(tmp);
 	return is;
 }
 
@@ -929,5 +929,15 @@ void QInt::rol(int n) {
 	for (int i = bin.length() - 1; i >= 0; i--) {
 		if (bin[i] == '1')
 			changeBit(127 - i);
+	}
+}
+
+void QInt::BinToQInt(string bin) {
+	for (int i = 0; i < 4; i++)
+		this->data[i] = 0;
+
+	for (int i = bin.length() - 1; i >= 0; i--) {
+		if (bin[i] == '1')
+			changeBit(bin.length() - i - 1);
 	}
 }

@@ -76,8 +76,16 @@ string QFloat::toString()
 
 	string bInt = '1' + this->data.to_string().substr(16,E); // Phan nguyen o dang Binary
 	string bFrac = this->data.to_string().substr(16 + E); // Phan thap phan o dang Binary
-	while (bFrac[bFrac.length() - 1] == '0') // Xoa so 0 thua o phia ben phai phan Thap Phan
-		bFrac.erase(bFrac.length() - 1, 1);
+	// Xoa so 0 thua o phia ben phai phan Thap Phan
+
+	int count = 0;
+	for (int i = bFrac.length(); i >= 0; i--)
+		if (bFrac[i] != '0')
+			break;
+		else
+			count++;
+	bFrac.erase(bFrac.length() - count);
+
 	result += QInt::binaryToDecimal(bInt) + '.';
 	string sInt = "";
 	string pow;
@@ -121,9 +129,16 @@ QFloat::QFloat()
 {
 }
 
+QFloat::QFloat(string value) {
+	scanDec(value);
+}
+
 ostream & operator<<(ostream & os, QFloat & n)
 {
-	os << n.toString();
+	string res = n.toString();
+	if (res[res.length() - 1] == '.')
+		res += "0";
+	cout << res;
 	return os;
 }
 
@@ -133,4 +148,96 @@ istream & operator>>(istream & is, QFloat & n)
 	is >> tmp;
 	n.scanDec(tmp);
 	return is;
+}
+
+int QFloat::getExponent() {
+	bitset<15> bE; // Exponent
+	for (int i = 0; i < 15; i++)
+	{
+		bE[i] = this->data[126 - 14 + i];
+	}
+
+	int E = bE.to_ulong() - 16383; // Chuyen to Exponent sang so mu
+	if (E == -16383) E = 0;
+
+	return E;
+}
+
+QFloat QFloat::operator*(QFloat b) {
+	QFloat zero("0");
+	QFloat ans;
+
+	if (this->data == 0 || b.data == 0) {
+		return zero;
+	}
+
+	string A = this->toBinary();
+	string B = b.toBinary();
+	
+	bool isNegativeA = A[0] == '1';
+	bool isNegativeB = B[0] == '1';
+
+	int expA = this->getExponent();
+	int expB = b.getExponent();
+	int exp = expA + expB;
+
+	string sigA = "1" + A.substr(16);
+	string sigB = "1" + B.substr(16);
+
+	//Xoa so 0 thua
+	int count = 0;
+	for (int i = sigA.length() - 1; i >= 0; i--) {
+		if (sigA[i] != '0')
+			break;
+		else
+			count++;
+	}
+	sigA.erase(sigA.length() - count);
+
+	count = 0;
+	for (int i = sigB.length() - 1; i >= 0; i--) {
+		if (sigB[i] != '0')
+			break;
+		else
+			count++;
+	}
+	sigB.erase(sigB.length() - count);
+
+	int nA = sigA.length() - 1;
+	int nB = sigB.length() - 1;
+
+	//Nhan 2 phan sig
+	QInt int_sigA;
+	int_sigA.BinToQInt(sigA);
+	QInt int_sigB;
+	int_sigB.BinToQInt(sigB);
+	QInt int_mulSig = int_sigA * int_sigB;
+
+	string sigMul = int_mulSig.toBinary(1);
+	
+	int n = sigMul.length() - nA - nB;
+	if (n > 1) {
+		exp += (n - 1);
+	}
+	sigMul.erase(0, 1);
+
+	exp += 16383; //chuyen ve dang Bias
+
+	//Kiem tra truong hop 2 so khac dau -> tra ve so am
+	if (isNegativeA + isNegativeB == 1)
+		ans.data[127] = 1;
+	else
+		ans.data[127] = 0;
+
+	//Ghi phan Exponent vao ans
+	for (int i = 1; i < 16; i++) {
+		ans.data[127-(16 - i)] = exp % 2;
+		exp /= 2;
+	}
+
+	//Ghi phan gia tri vao ans
+	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
+		ans.data[127-(17 + i - 1)] = sigMul[i] == '1' ? 1 : 0;
+
+	return ans;
 }
