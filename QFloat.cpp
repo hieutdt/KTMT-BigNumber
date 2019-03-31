@@ -52,6 +52,7 @@ void QFloat::scanDec(string s)
 			if (qFrac[i] == '1') {
 				e = - (i + 1);
 				founded = true;
+				qFrac.erase(0, abs(e));
 				break;
 			}
 		}
