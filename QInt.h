@@ -1,3 +1,6 @@
+#ifndef _QINT_H
+#define _QINT_H
+
 #pragma once
 
 #include <iostream>
@@ -15,11 +18,12 @@ public:
 	void changeBit(int pos);
 	int getBit(int post);
 	void addToOne();
-	void stringToQInt(string val);
+	void DecToQInt(string val);
+	void BinToQInt(string val);
 
 	static int oddToOne(char c);
 	static string addString(string a, string b);
-	static string stringDivTwo(string s);
+	static string stringDivTwo(string s, bool isKeepZero = 0);
 	static string twoPowN(int n);
 	static void binaryShiftLeft(string &bin, int n);
 	static void binaryShiftRight(string &bin, int n);
@@ -30,7 +34,7 @@ public:
 	QInt();
 	QInt(string x);
 
-	string toBinary();
+	string toBinary(bool isClean=0);
 	string toString();
 	string toHexa();
 
@@ -62,3 +66,5 @@ public:
 	friend ostream& operator<<(ostream& os, QInt &n);
 	friend istream& operator>>(istream& is, QInt &n);
 };
+
+#endif

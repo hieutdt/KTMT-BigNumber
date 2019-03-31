@@ -9,7 +9,7 @@ int QInt::oddToOne(char c) {
 	return 0;
 }
 
-string QInt::stringDivTwo(string s) {
+string QInt::stringDivTwo(string s, bool isKeepZero) {
 	stringstream ss;
 	ss << "";
 
@@ -22,7 +22,7 @@ string QInt::stringDivTwo(string s) {
 		if (digit != 0)
 			firstZero = false;
 
-		if (!firstZero)
+		if (!firstZero || isKeepZero)
 			ss << digit;
 
 		additive = QInt::oddToOne(s[i]) * 5;
@@ -73,7 +73,7 @@ void QInt::addToOne() {
 	}
 }
 
-void QInt::stringToQInt(string val) {
+void QInt::DecToQInt(string val) {
 	bool isNegative = false;
 
 	//Neu la so am thi xoa ky tu dau tien
@@ -158,10 +158,20 @@ string QInt::twoPowN(int n) {
 	string result = "1";
 	if (n == 0)
 		return "1";
-
-	for (int i = 0; i < n; i++)
-		result = QInt::addString(result, result);
-
+	else if (n > 0) {
+		for (int i = 0; i < n; i++)
+			result = QInt::addString(result, result);
+	}
+	else{
+		for (int i = -1; i >= n; i--) {
+			if (QInt::oddToOne(result[result.length() - 1]) == 1)
+				result += "0";
+			if((result[0]=='1' || result[0]=='0') && i<-1)
+				result = QInt::stringDivTwo(result,1);
+			else 
+				result = QInt::stringDivTwo(result,0);
+		}
+	}
 	return result;
 }
 
@@ -264,10 +274,10 @@ QInt::QInt() {
 }
 
 QInt::QInt(string val) {
-	this->stringToQInt(val);
+	this->DecToQInt(val);
 }
 
-string QInt::toBinary() {
+string QInt::toBinary(bool isClean) {
 	stringstream ss;
 	
 	for (int i = 0; i < QInt::NUM_OF_INT * 32; i++) {
@@ -277,7 +287,9 @@ string QInt::toBinary() {
 
 	string ans = ss.str();
 	std::reverse(ans.begin(), ans.end());
-
+	if (isClean == 1) {
+		while (ans[0]=='0' && ans.length()>1) ans.erase(0,1);
+	}
 	return ans;
 }
 
@@ -289,7 +301,7 @@ ostream& operator<<(ostream &os, QInt &n) {
 istream& operator>>(istream &is, QInt &n) {
 	string tmp;
 	is >> tmp;
-	n.stringToQInt(tmp);
+	n.DecToQInt(tmp);
 	return is;
 }
 
@@ -917,5 +929,15 @@ void QInt::rol(int n) {
 	for (int i = bin.length() - 1; i >= 0; i--) {
 		if (bin[i] == '1')
 			changeBit(127 - i);
+	}
+}
+
+void QInt::BinToQInt(string bin) {
+	for (int i = 0; i < 4; i++)
+		this->data[i] = 0;
+
+	for (int i = bin.length() - 1; i >= 0; i--) {
+		if (bin[i] == '1')
+			changeBit(bin.length() - i - 1);
 	}
 }
