@@ -20,29 +20,33 @@ void QFloat::scanDec(string s)
 	}
 	QInt qInt(sInt); // Chuyen phan nguyen ve nhi phan
 	string qFrac = ""; //  Chuyen phan thap phan ve nhi phan
+	stringstream ss;
 	
 	if(sFrac.length()>0)
 	for (int i = 0; i < 112; i++)
 	{
 		int y = sFrac.length();
 		sFrac = QInt::addString(sFrac, sFrac);
-		if (sFrac.length() > y) { 
-			sFrac.erase(0,1);
-			qFrac += "1";
-			if (sFrac[sFrac.length()-1] == '0') { // Kiem tra phan thap phan bang 0 hay chua
+		if (sFrac.length() > y) {
+			sFrac.erase(0, 1);
+			ss << "1";
+			/*if (sFrac[sFrac.length()-1] == '0') { // Kiem tra phan thap phan bang 0 hay chua
 				break;
-			}
+			}*/
 		}
 		else
-			qFrac += "0";
+			ss << "0";
 	}
+	qFrac = ss.str();
 	
 	int e = 0;
 	string bInt = qInt.toBinary();
-	bool founded = false;
-	for (int i = bInt.length() - 1; i >= 0; i--)
+	bool founded = false; //danh dau xem phan nguyen co tim ra duoc bit 1 nao khong
+	
+	//vi tri bit 1 dau tien cua phan nguyen cung chinh la de chuyen ve dang chuan
+	for (int i = 0; i < bInt.length(); i++)
 		if (bInt[i] == '1') {
-			e = bInt.length() - i;
+			e = bInt.length() - i - 1;
 			founded = true;
 			break;
 		}
@@ -72,8 +76,6 @@ void QFloat::scanDec(string s)
 	{
 		this->data[127 - 1 - 15 - i] = (significand[i] == '1' ? 1 : 0);
 	}
-
-	cout << this->data.to_string() << endl;
 }
 
 void QFloat::scanBin(string s)
@@ -100,13 +102,17 @@ string QFloat::toString()
 	if (E == -16383) E = 0;
 
 
-	if (E >= 0) {
-		bInt = '1' + this->data.to_string().substr(16, E); // Phan nguyen o dang Binary
+	if (E >= 0) { //So lon hon 1
+		bInt = '1' + this->data.to_string().substr(16, E); //Phan nguyen o dang Binary
 		bFrac = this->data.to_string().substr(16 + E); // Phan thap phan o dang Binary
-		// Xoa so 0 thua o phia ben phai phan Thap Phan
 	}
-	else {
-		bFrac = this->data.to_string().substr(16);
+	else { //So be hon 1
+		stringstream ss;
+		for (int i = 0; i < (-1 - E); i++)
+			ss << "0";
+		ss << "1";
+		ss << this->data.to_string().substr(16);
+		bFrac = ss.str();
 	}
 
 	//Xoa so 0 thua sau phan thap phan
@@ -126,16 +132,11 @@ string QFloat::toString()
 	}
 
 	//In phan thap phan
-	stringstream ss;
-	for (int i = 0; i < (-1 - E) - 1; i++) {
-		ss << "0";
-	}
-	ss << bFrac;
-	bFrac = ss.str();
 	
 	string sInt = "";
 	string pow;
 	int tLength = bFrac.length();
+
 	int j = 0;
 	for (int i = -1; i >= -tLength; i--)
 	{
