@@ -1,28 +1,65 @@
 #include "QFloat.h"
 #include "QInt.h"
 
+void QFloat::DevideFloat(string s, string & sInt, string & sFrac)
+{
+	size_t found = s.find('.');
+
+	if (found != std::string::npos) {
+		sInt = s.substr(0, found);
+		sFrac = s.substr(found + 1);
+	}
+	else {
+		sInt = s.substr(0);
+		sFrac = "0";
+	}
+}
+
+string QFloat::addFracString(string a, string b)
+{
+	string result;
+	int lA = a.length(),
+		lB = b.length(),
+		l = abs(lA - lB);
+	for (int i = 0; i < l; i++)
+	{
+		if (lA < lB) a += "0";
+		else b += "0";
+	}
+	result = QInt::addString(a, b);
+
+	while (result[result.length() - 1] == '0') // Xoa so 0 thua o phia ben phai
+		result.erase(result.length() - 1, 1);
+	return result;
+}
+
+int QFloat::getExponent() {
+	bitset<15> bE; // Exponent
+	for (int i = 0; i < 15; i++)
+	{
+		bE[i] = this->data[126 - 14 + i];
+	}
+
+	int E = bE.to_ulong() - 16383; // Chuyen to Exponent sang so mu
+	if (E == -16383) E = 0;
+
+	return (E);
+}
+
+
 void QFloat::scanDec(string s)
 {
 	this->data[127] = (s[0] == '-' ? 1 : 0); // Kiem tra so am
 	if(s[0] == '-' || s[0] =='+') s.erase(0, 1);
-	while(s[0]=='0') s.erase(0, 1); // Xoa so 0 thua ben trai
+	// Xoa so 0 thua ben trai va phai
+	while(s.substr(0,2) =="00") s.erase(0, 1); 
 
-	size_t found = s.find('.');
-	string sInt; // Lay phan nguyen
-	string sFrac = "";// Lay phan thap phan
-
-	if (found != std::string::npos) {
-		sInt = s.substr(0, found);
-		sFrac = s.substr(found +1);
-	}
-	else {
-		sInt = s.substr(0);
-	}
+	string sInt, sFrac;
+	this->DevideFloat(s,sInt, sFrac);
 	QInt qInt(sInt); // Chuyen phan nguyen ve nhi phan
 	string qFrac = ""; //  Chuyen phan thap phan ve nhi phan
 	stringstream ss;
-	
-	if(sFrac.length()>0)
+
 	for (int i = 0; i < 112; i++)
 	{
 		int y = sFrac.length();
@@ -30,9 +67,9 @@ void QFloat::scanDec(string s)
 		if (sFrac.length() > y) {
 			sFrac.erase(0, 1);
 			ss << "1";
-			/*if (sFrac[sFrac.length()-1] == '0') { // Kiem tra phan thap phan bang 0 hay chua
+			if (sFrac == string(sFrac.length(),'0')) { // Kiem tra phan thap phan bang 0 hay chua
 				break;
-			}*/
+			}
 		}
 		else
 			ss << "0";
@@ -86,22 +123,17 @@ void QFloat::scanBin(string s)
 	}
 }
 
+
+
 string QFloat::toString()
 {
 	string result = (this->data[127] == 1?"-":"+"); // Kiem tra dau
 	string bInt;
 	string bFrac;
 
-	bitset<15> bE; // Exponent
-	for (int i = 0; i < 15; i++)
-	{
-		bE[i] = this->data[126 - 14 + i];
-	}
+	int E = getExponent();
 
-	int E = bE.to_ulong() - 16383; // Chuyen to Exponent sang so mu
-	if (E == -16383) E = 0;
-
-
+	if (this->data.to_string().substr(1) == string(127, '0')) return "0";
 	if (E >= 0) { //So lon hon 1
 		bInt = '1' + this->data.to_string().substr(16, E); //Phan nguyen o dang Binary
 		bFrac = this->data.to_string().substr(16 + E); // Phan thap phan o dang Binary
@@ -154,30 +186,37 @@ string QFloat::toBinary()
 	return (this->data).to_string();
 }
 
-string QFloat::addFracString(string a, string b)
-{
-	string result;
-	int lA = a.length(),
-		lB = b.length(),
-		l = abs(lA - lB);
-	for (int i = 0; i < l; i++)
-	{
-		if (lA < lB) a += "0";
-		else b += "0";
-	}
-	result = QInt::addString(a, b);
-
-	while (result[result.length() - 1] == '0') // Xoa so 0 thua o phia ben phai
-		result.erase(result.length() - 1, 1);
-	return result;
-}
-
 QFloat::QFloat()
 {
 }
 
 QFloat::QFloat(string value) {
 	scanDec(value);
+}
+
+//QFloat::QFloat(QFloat & x)
+//{
+//	this->data = x.data;
+//}
+
+bool QFloat::operator>(QFloat & b)
+{
+	bool flag = false;
+	int eA = this->getExponent(),
+		eB = b.getExponent();
+	if (this->data[127] == 0 && b.data[127] == 1) return true;
+	else if (this->data[127] == 1 && b.data[127] == 0) return false;
+
+	if (eA > eB) flag = true;
+	else if(eA == eB){
+		for (int i = 127 - 1 - 15; i >=0; i--)
+		{
+			if (this->data[i] > b.data[i]) flag= true;
+				
+		}
+	}
+	if (this->data[127] == 1 && b.data[127] == 1) flag = !flag;
+	return flag;
 }
 
 ostream & operator<<(ostream & os, QFloat & n)
@@ -197,17 +236,77 @@ istream & operator>>(istream & is, QFloat & n)
 	return is;
 }
 
-int QFloat::getExponent() {
-	bitset<15> bE; // Exponent
-	for (int i = 0; i < 15; i++)
-	{
-		bE[i] = this->data[126 - 14 + i];
+
+void QFloat::operator=(const QFloat & n)
+{
+	this->data = n.data;
+}
+
+QFloat QFloat::operator+(QFloat &b)
+{
+	QFloat result, *a = new QFloat();
+	*a = *this;
+	if (b > *a) {
+		bitset<128> temp = a->data;
+		a->data = b.data;
+		b.data = temp;
 	}
 
-	int E = bE.to_ulong() - 16383; // Chuyen to Exponent sang so mu
-	if (E == -16383) E = 0;
+	bitset<15> e(a->data.to_string().substr(1,15));
+	int E = e.to_ulong() - bitset<15>(b.data.to_string().substr(1, 15)).to_ulong();
+	if (E > 16383) E -= 16383;
 
-	return E;
+	bitset<113> significandA(a->data.to_string().substr(16));
+	bitset<113> significandB(b.data.to_string().substr(16));
+	if (E > 0) {
+		significandB = significandB >> E+1;
+		significandB[112 - E-1] = 1;
+	}
+	else {
+		significandB = significandB >> 1;
+		significandB[112] = 1;
+	}
+	significandA = significandA >> 1;
+	significandA[112] = 1;
+
+	bitset<113> significand;
+	int ex = 0;
+	for (int i = 0; i <= 112; i++) {
+		int abit = significandA[i];
+		int bbit = significandB[i];
+
+		if (abit + bbit + ex == 0)
+			continue;
+		else if (abit + bbit + ex == 1) {
+			significand[i] = 1;
+			ex = 0;
+		}
+		else if (abit + bbit + ex == 2) {
+			ex = 1;
+		}
+		else if (abit + bbit + ex == 3) {
+			significand[i] = 1;
+			ex = 1;
+		}
+	}
+
+	if (ex==0) {
+		significand = significand << 1;
+	}
+	else {
+		e = bitset<15>(e.to_ulong() + 1);
+	}
+
+	for (int i = 0; i < 112; i++)
+	{
+		result.data[i] = significand[i];
+	}
+	for (int i = 0; i < 15; i++)
+	{
+		result.data[i + 112] = e[i];
+	}
+
+	return result;
 }
 
 QFloat QFloat::operator*(QFloat b) {
