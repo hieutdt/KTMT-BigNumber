@@ -351,9 +351,10 @@ string QInt::binaryToDecimal(string binary) {
 	return res;
 }
 
-void QInt::operator=(const QInt &n) {
+QInt& QInt::operator=(const QInt &n) {
 	for (int i = 0; i < 4; i++)
 		this->data[i] = n.data[i];
+	return *this;
 }
 
 QInt QInt::operator+(QInt &b) {
@@ -940,4 +941,60 @@ void QInt::BinToQInt(string bin) {
 		if (bin[i] == '1')
 			changeBit(bin.length() - i - 1);
 	}
+}
+
+void QInt::HexToQInt(string hexa) {
+	//Prepare string representing 128 bits
+	string hexaBin 
+	("00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
+	int hexaPlace = 124;
+	string hexDigitInBin;
+	//Loop through each digit in hexa number
+	for (int i = hexa.length()-1; i > -1; i--)
+	{
+		//Each hexa has its own binary value
+		switch (hexa[i])
+		{
+			case '0': hexDigitInBin = "0000";
+				break;
+			case '1': hexDigitInBin = "0001";
+				break;
+			case '2': hexDigitInBin = "0010";
+				break;
+			case '3': hexDigitInBin = "0011";
+				break;
+			case '4': hexDigitInBin = "0100";
+				break;
+			case '5': hexDigitInBin = "0101";
+				break;
+			case '6': hexDigitInBin = "0110";
+				break;
+			case '7': hexDigitInBin = "0111";
+				break;
+			case '8': hexDigitInBin = "1000";
+				break;
+			case '9': hexDigitInBin = "1001";
+				break;
+			case 'A': hexDigitInBin = "1010";
+				break;
+			case 'B': hexDigitInBin = "1011";
+				break;
+			case 'C': hexDigitInBin = "1100";
+				break;
+			case 'D': hexDigitInBin = "1101";
+				break;
+			case 'E': hexDigitInBin = "1110";
+				break;
+			case 'F': hexDigitInBin = "1111";
+				break;
+		default:
+			throw "Not A Hex.";
+			break;
+		}
+		//Change the binary in relative to the hexa digit
+		hexaBin.replace(hexaPlace, 4, hexDigitInBin);
+		hexaPlace -= 4;
+	}
+	//Write to result
+	this->BinToQInt(hexaBin);
 }
