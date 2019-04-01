@@ -20,6 +20,7 @@ public:
 	void addToOne();
 	void DecToQInt(string val);
 	void BinToQInt(string val);
+	void HexToQInt(string val);
 
 	static int oddToOne(char c);
 	static string addString(string a, string b);
@@ -38,7 +39,7 @@ public:
 	string toString();
 	string toHexa();
 
-	void operator=(const QInt &n);
+	QInt& operator=(const QInt &n);
 	QInt operator+(QInt &b);
 	QInt operator-(QInt &b);
 	QInt operator*(QInt b);
