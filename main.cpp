@@ -7,11 +7,15 @@ int main() {
 	QFloat a, b;
 	cout << "a = ";
 	cin >> a;
+	cout << "So vua nhap: " << a << endl;
+	cout << a.toBinary() << endl;
 	cout << "b = ";
 	cin >> b;
-	
-	QFloat c = a * b;
-	cout << c << endl;
+	cout << "So vua nhap: " << b << endl;
+	cout << b.toBinary() << endl;
+	cout << endl;
+	QFloat c = a + b;
+	cout << "a + b = " << c << endl;
 
 	system("pause");
 	return 0;
