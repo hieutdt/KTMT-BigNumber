@@ -388,28 +388,17 @@ QFloat QFloat::operator/(QFloat &x)
 	stringstream quotient;
 	for (int i = 0; i < sigA.length(); i++) {
 		divisor += sigA[i];
-		cout << "------ " << endl;
-		cout << "i = " << i << endl;
-		cout << "divisor = " << divisor << endl;
 		if (QFloat::compareBinaryString(divisor, sigB) >= 0) {
-			cout << "Lon hon " <<  sigB << endl;
 			quotient << '1';
 			divisor = QFloat::subBinaryString(divisor, sigB);
-			cout << "divisor sau khi tru: " << divisor << endl;
 		}
 		else {
 			quotient << '0';
 		}
-		cout << "------- " << endl;
 	}
 
 	string sigMul = quotient.str(); //mantissa
-	cout << "sigMul = " << sigMul << endl;
 	sigMul.erase(0, sigB.length());
-
-	cout << "sigA = " << sigA << endl;
-	cout << "sigB = " << sigB << endl;
-	cout << "sigMul = " << sigMul << endl;
 
 	result.exponent = bitset<15>(E);
 	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
