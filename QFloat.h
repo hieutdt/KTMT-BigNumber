@@ -29,6 +29,7 @@ private:
 public:
 	QFloat();
 	QFloat(string value);
+	//QFloat(QFloat &x);
 
 	static QFloat zero();
 	static QFloat infinity(); 
@@ -37,19 +38,30 @@ public:
 	void scanDec(string s); // nhap duoi dang so cham dong
 	void scanBin(string s); // nhap duoi dang nhi phan
 
+<<<<<<< HEAD
 	string toString(); // In ra so cham dong
 	string toBinary(bool isClean = 0); // In ra nhi phan
 
 	bool operator<(QFloat &b);
+=======
+	bool operator>(QFloat &b);
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 
 	friend ostream& operator<<(ostream& os, QFloat &n);
 	friend istream& operator>>(istream& is, QFloat &n);
 
 	void operator=(const QFloat &n);
+<<<<<<< HEAD
 	QFloat operator+(QFloat &n);
 	QFloat operator-(QFloat &n);
 	QFloat operator/(QFloat &n);
 	QFloat operator*(QFloat &x);
+=======
+	QFloat operator+(QFloat b);
+	QFloat operator/(QFloat b);
+	QFloat operator*(QFloat b);
+	QFloat operator-(QFloat b);
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 };
 
 #endif

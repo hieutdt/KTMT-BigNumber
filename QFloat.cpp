@@ -4,14 +4,33 @@
 void QFloat::DevideFloat(string s, string & sInt, string & sFrac)
 {
 	size_t found = s.find('.');
+<<<<<<< HEAD
 	sFrac = "0";
+=======
+
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 	if (found != std::string::npos) {
 		sInt = s.substr(0, found);
 		sFrac = s.substr(found + 1);
 	}
 	else {
 		sInt = s.substr(0);
+		sFrac = "0";
 	}
+}
+
+string QFloat::addFracString(string a, string b)
+{
+	string result;
+	int lA = a.length(),
+		lB = b.length(),
+		l = abs(lA - lB);
+	for (int i = 0; i < l; i++)
+	{
+		if (lA < lB) a += "0";
+		else b += "0";
+	}
+<<<<<<< HEAD
 }
 
 string QFloat::addFracString(string a, string b)
@@ -30,11 +49,17 @@ string QFloat::addFracString(string a, string b)
 
 	// Xoa so 0 thua o phia ben phai
 	while (result[result.length() - 1] == '0')
+=======
+	result = QInt::addString(a, b);
+
+	while (result[result.length() - 1] == '0') // Xoa so 0 thua o phia ben phai
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 		result.erase(result.length() - 1, 1);
 	return result;
 }
 
 int QFloat::getExponent() {
+<<<<<<< HEAD
 	int E = this->exponent.to_ulong() - 16383; // Chuyen to Exponent sang so mu
 	if (this->isZero()) E = 0;
 	return (E);
@@ -108,10 +133,35 @@ void QFloat::scanDec(string s)
 	this->DevideFloat(s, sInt, sFrac);
 
 	//Chuyen ve nhi phan
+=======
+	bitset<15> bE; // Exponent
+	for (int i = 0; i < 15; i++)
+	{
+		bE[i] = this->data[126 - 14 + i];
+	}
+
+	int E = bE.to_ulong() - 16383; // Chuyen to Exponent sang so mu
+	if (E == -16383) E = 0;
+
+	return (E);
+}
+
+
+void QFloat::scanDec(string s)
+{
+	this->data[127] = (s[0] == '-' ? 1 : 0); // Kiem tra so am
+	if(s[0] == '-' || s[0] =='+') s.erase(0, 1);
+	// Xoa so 0 thua ben trai va phai
+	while(s.substr(0,2) =="00") s.erase(0, 1); 
+
+	string sInt, sFrac;
+	this->DevideFloat(s,sInt, sFrac);
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 	QInt qInt(sInt); // Chuyen phan nguyen ve nhi phan
 	string qFrac = ""; //  Chuyen phan thap phan ve nhi phan
 	stringstream ss;
 
+<<<<<<< HEAD
 	if(sFrac.length()>0 && sFrac!="0")
 		for (int i = 0; i < 112; i++)
 		{
@@ -127,6 +177,18 @@ void QFloat::scanDec(string s)
 			}
 			else
 				ss << "0";
+=======
+	for (int i = 0; i < 112; i++)
+	{
+		int y = sFrac.length();
+		sFrac = QInt::addString(sFrac, sFrac);
+		if (sFrac.length() > y) {
+			sFrac.erase(0, 1);
+			ss << "1";
+			if (sFrac == string(sFrac.length(),'0')) { // Kiem tra phan thap phan bang 0 hay chua
+				break;
+			}
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 		}
 	qFrac = ss.str();
 
@@ -162,16 +224,25 @@ void QFloat::scanBin(string s)
 }
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 string QFloat::toString()
 {
 	string result = (this->sign == 1 ? "-" : "+"); // Kiem tra dau
 	string bInt = "0";
 	string bFrac;
 
+<<<<<<< HEAD
 	int E = this->getExponent();
 
 	if (this->isZero()) return "0";
+=======
+	int E = getExponent();
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 
+	if (this->data.to_string().substr(1) == string(127, '0')) return "0";
 	if (E >= 0) { //So lon hon 1
 		bInt = '1' + this->mantissa.to_string().substr(0, E); //Phan nguyen o dang Binary
 		bFrac = this->mantissa.to_string().substr(E); // Phan thap phan o dang Binary
@@ -202,9 +273,15 @@ string QFloat::toString()
 	return result;
 }
 
+<<<<<<< HEAD
 string QFloat::toBinary(bool isClean)
 {
 	return this->sign.to_string() + (isClean?" ":"")+ this->exponent.to_string() + (isClean ? " " : "")+ this->mantissa.to_string();
+=======
+string QFloat::toBinary()
+{
+	return (this->data).to_string();
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 }
 
 QFloat::QFloat()
@@ -215,6 +292,7 @@ QFloat::QFloat(string value) {
 	scanDec(value);
 }
 
+<<<<<<< HEAD
 
 bool QFloat::operator<(QFloat & b)
 {
@@ -230,6 +308,31 @@ bool QFloat::operator<(QFloat & b)
 				return false;
 	}
 	return false;
+=======
+//QFloat::QFloat(QFloat & x)
+//{
+//	this->data = x.data;
+//}
+
+bool QFloat::operator>(QFloat & b)
+{
+	bool flag = false;
+	int eA = this->getExponent(),
+		eB = b.getExponent();
+	if (this->data[127] == 0 && b.data[127] == 1) return true;
+	else if (this->data[127] == 1 && b.data[127] == 0) return false;
+
+	if (eA > eB) flag = true;
+	else if(eA == eB){
+		for (int i = 127 - 1 - 15; i >=0; i--)
+		{
+			if (this->data[i] > b.data[i]) flag= true;
+				
+		}
+	}
+	if (this->data[127] == 1 && b.data[127] == 1) flag = !flag;
+	return flag;
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 }
 
 ostream & operator<<(ostream & os, QFloat & n)
@@ -250,6 +353,7 @@ istream & operator>>(istream & is, QFloat & n)
 
 void QFloat::operator=(const QFloat & n)
 {
+<<<<<<< HEAD
 	this->sign = n.sign;
 	this->exponent = n.exponent;
 	this->mantissa = n.mantissa;
@@ -263,6 +367,73 @@ QFloat QFloat::operator+(QFloat &n)
 		QFloat c = a;
 		a = b;
 		b = c;
+=======
+	this->data = n.data;
+}
+
+QFloat QFloat::operator+(QFloat b)
+{
+	QFloat result, *a = new QFloat();
+	*a = *this;
+	if (b > *a) {
+		bitset<128> temp = a->data;
+		a->data = b.data;
+		b.data = temp;
+	}
+
+	bitset<15> e(a->data.to_string().substr(1,15));
+	int E = e.to_ulong() - bitset<15>(b.data.to_string().substr(1, 15)).to_ulong();
+	if (E > 16383) E -= 16383;
+
+	bitset<113> significandA(a->data.to_string().substr(16));
+	bitset<113> significandB(b.data.to_string().substr(16));
+	if (E > 0) {
+		significandB = significandB >> E+1;
+		significandB[112 - E-1] = 1;
+	}
+	else {
+		significandB = significandB >> 1;
+		significandB[112] = 1;
+	}
+	significandA = significandA >> 1;
+	significandA[112] = 1;
+
+	bitset<113> significand;
+	int ex = 0;
+	for (int i = 0; i <= 112; i++) {
+		int abit = significandA[i];
+		int bbit = significandB[i];
+
+		if (abit + bbit + ex == 0)
+			continue;
+		else if (abit + bbit + ex == 1) {
+			significand[i] = 1;
+			ex = 0;
+		}
+		else if (abit + bbit + ex == 2) {
+			ex = 1;
+		}
+		else if (abit + bbit + ex == 3) {
+			significand[i] = 1;
+			ex = 1;
+		}
+	}
+
+	if (ex==0) {
+		significand = significand << 1;
+	}
+	else {
+		e = bitset<15>(e.to_ulong() + 1);
+	}
+
+	for (int i = 0; i < 112; i++)
+	{
+		result.data[i] = significand[i];
+	}
+	for (int i = 0; i < 15; i++)
+	{
+		result.data[i + 112] = e[i];
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 	}
 	if (a.sign == 1 && b.sign == 0) result.sign = 1;
 	if (a.isZero() && b.isZero()) return QFloat("0");
@@ -270,6 +441,7 @@ QFloat QFloat::operator+(QFloat &n)
 	else if (b.isZero()) return a;
 	result.exponent = a.exponent;
 
+<<<<<<< HEAD
 	int E = abs(a.getExponent() - b.getExponent());
 
 	if (E > 0) {
@@ -352,6 +524,8 @@ QFloat QFloat::operator+(QFloat &n)
 			result.mantissa = result.mantissa << 1;
 		}
 	}
+=======
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 	return result;
 }
 
@@ -371,7 +545,15 @@ QFloat QFloat::operator/(QFloat &x)
 	}
 	else if (a.isZero()) return QFloat::zero();
 
+<<<<<<< HEAD
 	result.sign = a.sign ^ b.sign;
+=======
+	string A = this->toBinary();
+	string B = b.toBinary();
+	
+	bool isNegativeA = (A[0] == '1');
+	bool isNegativeB = (B[0] == '1');
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 
 	int E = a.getExponent() - b.getExponent() + 16383;
 
@@ -385,6 +567,7 @@ QFloat QFloat::operator/(QFloat &x)
 	// Thuc hien phep chia 2 mantissa
 
 
+<<<<<<< HEAD
 	result.exponent = bitset<15>(E);
 	/*for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
 		result.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
@@ -412,6 +595,8 @@ QFloat QFloat::operator*(QFloat &x) {
 	int nA = sigA.length() - 1;
 	int nB = sigB.length() - 1;
 
+=======
+>>>>>>> 2d9751204fc6e156325cad207560522900fcc68a
 	//Nhan 2 phan sig
 	QInt int_sigA, int_sigB;
 	int_sigA.BinToQInt(sigA);
@@ -440,4 +625,80 @@ QFloat QFloat::operator*(QFloat &x) {
 		ans.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
 
 	return ans;
+}
+
+QFloat QFloat::operator-(QFloat b) {
+	QFloat result, *a = new QFloat();
+	*a = *this;
+	if (b > *a) {
+		bitset<128> temp = a->data;
+		a->data = b.data;
+		b.data = temp;
+	}
+
+	bitset<15> e(a->data.to_string().substr(1, 15));
+	int E = e.to_ulong() - bitset<15>(b.data.to_string().substr(1, 15)).to_ulong();
+	if (E > 16383) E -= 16383;
+
+	bitset<113> significandA(a->data.to_string().substr(16));
+	bitset<113> significandB(b.data.to_string().substr(16));
+	if (E > 0) {
+		significandB = significandB >> E + 1;
+		significandB[112 - E - 1] = 1;
+	}
+	else {
+		significandB = significandB >> 1;
+		significandB[112] = 1;
+	}
+	significandA = significandA >> 1;
+	significandA[112] = 1;
+
+	bitset<113> significand;
+	int ex = 0;
+	for (int i = 0; i <= 112; i++) {
+		int abit = significandA[i];
+		int bbit = significandB[i];
+
+		if (abit - bbit - ex == 0) {
+			significand[i] = 0;
+			continue;
+		} 
+		else if (abit - bbit - ex == -1) {
+			significand[i] = 1;
+			ex = 1;
+			continue;
+		}
+		else if (abit - bbit - ex == 1) {
+			significand[i] = 1;
+			ex = 0;
+			continue;
+		}
+		else if (abit - bbit - ex == -2) {
+			significand[i] = 0;
+			ex = 1;
+			continue;
+		}
+	}
+
+	if (ex == 0) {
+		significand = significand << 1;
+	}
+	else {
+		e = bitset<15>(e.to_ulong() + 1);
+	}
+
+	cout << significandA.to_string() << endl;
+	cout << significandB.to_string() << endl;
+	cout << significand.to_string() << endl;
+
+	for (int i = 0; i < 112; i++)
+	{
+		result.data[i] = significand[i];
+	}
+	for (int i = 0; i < 15; i++)
+	{
+		result.data[i + 112] = e[i];
+	}
+
+	return result;
 }
