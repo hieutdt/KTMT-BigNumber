@@ -78,7 +78,7 @@ void DoCalculate(QFloat data1, string operation, QFloat data2, ofstream& output)
 	QFloat result;
 	// Chon phep tinh tuong ung voi operation
 	{
-		/*if (operation == "+")
+		if (operation == "+")
 		{
 			result = data1 + data2;
 		}
@@ -86,14 +86,14 @@ void DoCalculate(QFloat data1, string operation, QFloat data2, ofstream& output)
 		{
 			result = data1 - data2;
 		}
-		else*/ if (operation == "*")
+		else if (operation == "*")
 		{
 			result = data1 * data2;
 		}
-		//else if (operation == "/")
-		//{
-		//	result = data1 / data2;
-		//}
+		else if (operation == "/")
+		{
+			result = data1 / data2;
+		}
 	}
 
 	output << result << endl;
