@@ -4,14 +4,13 @@
 void QFloat::DevideFloat(string s, string & sInt, string & sFrac)
 {
 	size_t found = s.find('.');
-
+	sFrac = "0";
 	if (found != std::string::npos) {
 		sInt = s.substr(0, found);
 		sFrac = s.substr(found + 1);
 	}
 	else {
 		sInt = s.substr(0);
-		sFrac = "0";
 	}
 }
 
@@ -21,6 +20,7 @@ string QFloat::addFracString(string a, string b)
 	int lA = a.length(),
 		lB = b.length(),
 		l = abs(lA - lB);
+
 	for (int i = 0; i < l; i++)
 	{
 		if (lA < lB) a += "0";
@@ -28,144 +28,165 @@ string QFloat::addFracString(string a, string b)
 	}
 	result = QInt::addString(a, b);
 
-	while (result[result.length() - 1] == '0') // Xoa so 0 thua o phia ben phai
+	// Xoa so 0 thua o phia ben phai
+	while (result[result.length() - 1] == '0')
 		result.erase(result.length() - 1, 1);
 	return result;
 }
 
 int QFloat::getExponent() {
-	bitset<15> bE; // Exponent
-	for (int i = 0; i < 15; i++)
-	{
-		bE[i] = this->data[126 - 14 + i];
-	}
-
-	int E = bE.to_ulong() - 16383; // Chuyen to Exponent sang so mu
-	if (E == -16383) E = 0;
-
+	int E = this->exponent.to_ulong() - 16383; // Chuyen to Exponent sang so mu
+	if (this->isZero()) E = 0;
 	return (E);
 }
 
+bool QFloat::isZero()
+{
+	return (this->exponent.to_string() == string(15, '0')) && (this->mantissa.to_string() == string(112, '0'));
+}
+
+bool QFloat::isDenormalized()
+{
+	return (this->exponent.none() && !this->mantissa.none());
+}
+
+bool QFloat::isInfinity()
+{
+	return (this->exponent.all() && this->mantissa.none());
+}
+
+bool QFloat::isNaN()
+{
+	return (this->exponent.all() && !this->mantissa.none());
+}
+
+void QFloat::clean(string & s, bool isLeft, bool isRight, bool deep)
+{
+	if (deep) {
+		if (isLeft)  while (s.substr(0, 1) == "0") s.erase(0, 1);
+		if (isRight) while (s.length() >= 1 && s.substr(s.length() - 1, 1) == "0") s.erase(s.length() - 1);
+	}
+	else {
+		if (isLeft)  while (s.substr(0, 2) == "00") s.erase(0, 1);
+		if (isRight) while (s.length() >= 2 && s.substr(s.length() - 2, 2) == "00") s.erase(s.length() - 1);
+	}
+}
+
+
+QFloat QFloat::zero()
+{
+	QFloat x;
+	return x;
+}
+
+QFloat QFloat::infinity()
+{
+	QFloat x;
+	x.exponent = x.exponent.set();
+	x.mantissa = x.mantissa.reset();
+	return x;
+}
+
+QFloat QFloat::NaN()
+{
+	QFloat x;
+	x.exponent = x.exponent.set();
+	x.mantissa = x.mantissa.set();
+	return x;
+}
 
 void QFloat::scanDec(string s)
 {
-	this->data[127] = (s[0] == '-' ? 1 : 0); // Kiem tra so am
-	if(s[0] == '-' || s[0] =='+') s.erase(0, 1);
-	// Xoa so 0 thua ben trai va phai
-	while(s.substr(0,2) =="00") s.erase(0, 1); 
+	this->sign = (s[0] == '-' ? 1 : 0); // Kiem tra so am
+	if (s[0] == '-' || s[0] == '+') s.erase(0, 1);
 
-	string sInt, sFrac;
-	this->DevideFloat(s,sInt, sFrac);
+	// Xoa so 0 thua ben trai va phai
+	this->clean(s);
+
+	//Cat chuoi
+	string sInt="0", sFrac;
+	this->DevideFloat(s, sInt, sFrac);
+
+	//Chuyen ve nhi phan
 	QInt qInt(sInt); // Chuyen phan nguyen ve nhi phan
 	string qFrac = ""; //  Chuyen phan thap phan ve nhi phan
 	stringstream ss;
 
-	for (int i = 0; i < 112; i++)
-	{
-		int y = sFrac.length();
-		sFrac = QInt::addString(sFrac, sFrac);
-		if (sFrac.length() > y) {
-			sFrac.erase(0, 1);
-			ss << "1";
-			if (sFrac == string(sFrac.length(),'0')) { // Kiem tra phan thap phan bang 0 hay chua
-				break;
+	if(sFrac.length()>0 && sFrac!="0")
+		for (int i = 0; i < 112; i++)
+		{
+			int y = sFrac.length();
+			sFrac = QInt::addString(sFrac, sFrac);
+			if (sFrac.length() > y) {
+				sFrac.erase(0, 1);
+				ss << "1";
+				// Kiem tra phan thap phan bang 0 hay chua
+				if (sFrac == string(sFrac.length(), '0')) {
+					break;
+				}
 			}
+			else
+				ss << "0";
 		}
-		else
-			ss << "0";
-	}
 	qFrac = ss.str();
-	
-	int e = 0;
-	string bInt = qInt.toBinary();
-	bool founded = false; //danh dau xem phan nguyen co tim ra duoc bit 1 nao khong
-	
-	//vi tri bit 1 dau tien cua phan nguyen cung chinh la de chuyen ve dang chuan
-	for (int i = 0; i < bInt.length(); i++)
-		if (bInt[i] == '1') {
-			e = bInt.length() - i - 1;
-			founded = true;
-			break;
-		}
 
-	if (!founded) { //phan so nguyen la 0
-		for (int i = 0; i < qFrac.length(); i++) {
-			if (qFrac[i] == '1') {
-				e = - (i + 1);
-				founded = true;
-				qFrac.erase(0, abs(e));
-				break;
-			}
+	string bInt = qInt.toBinary(1);
+	int e = 16383;
+
+	if (sInt == "0") {
+		if (qFrac == "") {
+			e = 0;
+		}
+		else {
+			size_t found = qFrac.find('1');
+			qFrac.erase(0, found + 1);
+			e -= found + 1;
 		}
 	}
-
-	e += 16383; // So Exponent, so bias 15 bit
-	if (e == 16383 && sInt=="0") e = 0;
-	bitset<15> bE(e); // Exponent sang Binary
-	for (int i = 0; i <15; i++)
-	{
-		this->data[127 - 15 + i] = bE[i];
+	else {
+		e += bInt.length() - 1;
 	}
-	
-	string significand = qInt.toBinary(1).substr(1) + qFrac;
-	
-	for (int i = 0; i < (significand.length()>112?112:significand.length()); i++)
+	this->exponent = bitset<15>(e);
+	string temp = bInt.substr(1) + qFrac;
+	for (int i = 0; i < (temp.length()>112?112: temp.length()); i++)
 	{
-		this->data[127 - 1 - 15 - i] = (significand[i] == '1' ? 1 : 0);
+		this->mantissa[112 - 1 - i] = (temp[i]=='1'?1:0);
 	}
 }
 
 void QFloat::scanBin(string s)
 {
-	for (int i = 0; i < (s.length() > 128 ? 128 : s.length()); i++)
-	{
-		this->data[127 - i] = (s[i] == '1' ? 1 : 0);
-	}
+	this->sign = (s[0] == '1' ? 1 : 0);
+	this->exponent = bitset<15>(s.substr(1, 15));
+	this->mantissa = bitset<112>(s.substr(16));
 }
-
 
 
 string QFloat::toString()
 {
-	string result = (this->data[127] == 1?"-":"+"); // Kiem tra dau
-	string bInt;
+	string result = (this->sign == 1 ? "-" : "+"); // Kiem tra dau
+	string bInt = "0";
 	string bFrac;
 
-	int E = getExponent();
+	int E = this->getExponent();
 
-	if (this->data.to_string().substr(1) == string(127, '0')) return "0";
+	if (this->isZero()) return "0";
+
 	if (E >= 0) { //So lon hon 1
-		bInt = '1' + this->data.to_string().substr(16, E); //Phan nguyen o dang Binary
-		bFrac = this->data.to_string().substr(16 + E); // Phan thap phan o dang Binary
+		bInt = '1' + this->mantissa.to_string().substr(0, E); //Phan nguyen o dang Binary
+		bFrac = this->mantissa.to_string().substr(E); // Phan thap phan o dang Binary
+		result += QInt::binaryToDecimal(bInt);
 	}
 	else { //So be hon 1
-		stringstream ss;
-		for (int i = 0; i < (-1 - E); i++)
-			ss << "0";
-		ss << "1";
-		ss << this->data.to_string().substr(16);
-		bFrac = ss.str();
+		bFrac = string(abs(E) - 1, '0') + '1' + this->mantissa.to_string();
+		result += "0";
 	}
+	clean(bFrac, 0, 1, 1);
 
-	//Xoa so 0 thua sau phan thap phan
-	int count = 0;
-	for (int i = bFrac.length() - 1; i >= 0; i--)
-		if (bFrac[i] != '0')
-			break;
-		else
-			count++;
-	bFrac.erase(bFrac.length() - count);
-
-	//In phan nguyen
-	if (E >= 0)
-		result += QInt::binaryToDecimal(bInt) + '.';
-	else {
-		result += "0.";
-	}
+	result += ".";
 
 	//In phan thap phan
-	
-	string sInt = "";
+	string sInt = "0";
 	string pow;
 	int tLength = bFrac.length();
 
@@ -181,9 +202,9 @@ string QFloat::toString()
 	return result;
 }
 
-string QFloat::toBinary()
+string QFloat::toBinary(bool isClean)
 {
-	return (this->data).to_string();
+	return this->sign.to_string() + (isClean?" ":"")+ this->exponent.to_string() + (isClean ? " " : "")+ this->mantissa.to_string();
 }
 
 QFloat::QFloat()
@@ -194,37 +215,27 @@ QFloat::QFloat(string value) {
 	scanDec(value);
 }
 
-//QFloat::QFloat(QFloat & x)
-//{
-//	this->data = x.data;
-//}
 
-bool QFloat::operator>(QFloat & b)
+bool QFloat::operator<(QFloat & b)
 {
-	bool flag = false;
 	int eA = this->getExponent(),
 		eB = b.getExponent();
-	if (this->data[127] == 0 && b.data[127] == 1) return true;
-	else if (this->data[127] == 1 && b.data[127] == 0) return false;
 
-	if (eA > eB) flag = true;
-	else if(eA == eB){
-		for (int i = 127 - 1 - 15; i >=0; i--)
-		{
-			if (this->data[i] > b.data[i]) flag= true;
-				
-		}
+	if (eA < eB) return true;
+	else if (eA == eB) {
+		for (int i = 111; i >= 0; i--)
+			if (this->mantissa[i] < b.mantissa[i])
+				return true;
+			else if (this->mantissa[i] > b.mantissa[i])
+				return false;
 	}
-	if (this->data[127] == 1 && b.data[127] == 1) flag = !flag;
-	return flag;
+	return false;
 }
 
 ostream & operator<<(ostream & os, QFloat & n)
 {
 	string res = n.toString();
-	if (res[res.length() - 1] == '.')
-		res += "0";
-	cout << res;
+	os << res;
 	return os;
 }
 
@@ -239,158 +250,270 @@ istream & operator>>(istream & is, QFloat & n)
 
 void QFloat::operator=(const QFloat & n)
 {
-	this->data = n.data;
+	this->sign = n.sign;
+	this->exponent = n.exponent;
+	this->mantissa = n.mantissa;
 }
 
-QFloat QFloat::operator+(QFloat &b)
+QFloat QFloat::operator+(QFloat &n)
 {
-	QFloat result, *a = new QFloat();
-	*a = *this;
-	if (b > *a) {
-		bitset<128> temp = a->data;
-		a->data = b.data;
-		b.data = temp;
+	QFloat result, a = *this, b = n;
+	if (a.sign == b.sign) result.sign = a.sign;
+	if (a < b) {
+		QFloat c = a;
+		a = b;
+		b = c;
 	}
+	if (a.sign == 1 && b.sign == 0) result.sign = 1;
+	if (a.isZero() && b.isZero()) return QFloat("0");
+	else if (a.isZero()) return b;
+	else if (b.isZero()) return a;
+	result.exponent = a.exponent;
 
-	bitset<15> e(a->data.to_string().substr(1,15));
-	int E = e.to_ulong() - bitset<15>(b.data.to_string().substr(1, 15)).to_ulong();
-	if (E > 16383) E -= 16383;
+	int E = abs(a.getExponent() - b.getExponent());
 
-	bitset<113> significandA(a->data.to_string().substr(16));
-	bitset<113> significandB(b.data.to_string().substr(16));
 	if (E > 0) {
-		significandB = significandB >> E+1;
-		significandB[112 - E-1] = 1;
+		b.mantissa = b.mantissa >> E + 1;
+		b.mantissa[111 - E] = 1;
 	}
 	else {
-		significandB = significandB >> 1;
-		significandB[112] = 1;
+		b.mantissa = b.mantissa >> 1;
+		b.mantissa[111] = 1;
 	}
-	significandA = significandA >> 1;
-	significandA[112] = 1;
 
-	bitset<113> significand;
+	a.mantissa = a.mantissa >> 1;
+	a.mantissa[111] = 1;
+
 	int ex = 0;
-	for (int i = 0; i <= 112; i++) {
-		int abit = significandA[i];
-		int bbit = significandB[i];
+	// Cung dau
+	if (a.sign == b.sign){
+		for (int i = 0; i <= 111; i++) {
+			int abit = a.mantissa[i];
+			int bbit = b.mantissa[i];
 
-		if (abit + bbit + ex == 0)
-			continue;
-		else if (abit + bbit + ex == 1) {
-			significand[i] = 1;
-			ex = 0;
+			if (abit + bbit + ex == 0)
+				continue;
+			else if (abit + bbit + ex == 1) {
+				result.mantissa[i] = 1;
+				ex = 0;
+			}
+			else if (abit + bbit + ex == 2) {
+				ex = 1;
+			}
+			else if (abit + bbit + ex == 3) {
+				result.mantissa[i] = 1;
+				ex = 1;
+			}
 		}
-		else if (abit + bbit + ex == 2) {
-			ex = 1;
+		if (ex == 0) {
+			result.mantissa = result.mantissa << 1;
 		}
-		else if (abit + bbit + ex == 3) {
-			significand[i] = 1;
-			ex = 1;
+		else if (ex == 1) {
+			result.exponent = bitset<15>(result.exponent.to_ulong() + 1);
+		}
+	}
+	// Trai dau
+	else{
+		for (int i = 0; i <= 111; i++) {
+			int abit = a.mantissa[i];
+			int bbit = b.mantissa[i];
+
+			if (abit - bbit - ex == 0)
+				ex = 0;
+			else if (abit - bbit - ex == -1) {
+				result.mantissa[i] = 1;
+				ex = 1;
+			}
+			else if (abit - bbit - ex == 1) {
+				result.mantissa[i] = 1;
+				ex = 0;
+			}
+			else if (abit - bbit - ex == -2) {
+				ex = 1;
+			}
+		}
+
+		if (result.mantissa[111]==0) {
+			int j = 0;
+			int tempE = result.exponent.to_ulong();
+
+			while (j < 111 && result.mantissa[111 - j] == 0) {
+				tempE--;
+				j++;
+			}
+			if (result.mantissa[111 - j] == 0)
+				result.exponent = bitset<15>(0);
+			else {
+				result.exponent = bitset<15>(tempE);
+				result.mantissa = result.mantissa << j+1;
+			}
+		}
+		else{
+			result.mantissa = result.mantissa << 1;
+		}
+	}
+	return result;
+}
+
+QFloat QFloat::operator-(QFloat & n)
+{
+	QFloat a = *this, b = n;
+	b.sign = b.sign.flip();
+	return a + b;
+}
+
+QFloat QFloat::operator/(QFloat &x)
+{
+	QFloat result, a = *this, b = x;
+	if (b.isZero()) {
+		if (a.isZero()) return QFloat::NaN();
+		else return QFloat::infinity();
+	}
+	else if (a.isZero()) return QFloat::zero();
+
+	result.sign = a.sign ^ b.sign;
+
+	int E = a.getExponent() - b.getExponent() + 16383;
+
+	string sigA = "1" + a.mantissa.to_string();
+	string sigB = "1" + b.mantissa.to_string();
+
+	//Xoa so 0 thua
+	this->clean(sigA, 0, 1, 1);
+	this->clean(sigB, 0, 1, 1);
+
+	// Thuc hien phep chia 2 mantissa
+
+	string divisor = "";
+	stringstream quotient;
+	for (int i = 0; i < sigA.length(); i++) {
+		divisor += sigA[i];
+		if (QFloat::compareBinaryString(divisor, sigB) >= 0) {
+			quotient << '1';
+			divisor = QFloat::subBinaryString(divisor, sigB);
+		}
+		else {
+			quotient << '0';
 		}
 	}
 
-	if (ex==0) {
-		significand = significand << 1;
-	}
-	else {
-		e = bitset<15>(e.to_ulong() + 1);
-	}
+	string sigMul = quotient.str(); //mantissa
+	sigMul.erase(0, sigB.length());
 
-	for (int i = 0; i < 112; i++)
-	{
-		result.data[i] = significand[i];
-	}
-	for (int i = 0; i < 15; i++)
-	{
-		result.data[i + 112] = e[i];
-	}
+	result.exponent = bitset<15>(E);
+	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
+		result.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
+
+	cout << result.toBinary(1) << endl;
 
 	return result;
 }
 
-QFloat QFloat::operator*(QFloat b) {
-	QFloat zero("0");
-	QFloat ans;
+QFloat QFloat::operator*(QFloat &x) {
+	QFloat ans, a = *this, b = x;
 
-	if (this->data == 0 || b.data == 0) {
-		return zero;
-	}
+	if (a.isZero() || b.isZero()) return QFloat::zero();
 
-	string A = this->toBinary();
-	string B = b.toBinary();
-	
-	bool isNegativeA = A[0] == '1';
-	bool isNegativeB = B[0] == '1';
+	int E = a.getExponent() + b.getExponent() + 16383;
 
-	int expA = this->getExponent();
-	int expB = b.getExponent();
-	int exp = expA + expB;
-
-	string sigA = "1" + A.substr(16);
-	string sigB = "1" + B.substr(16);
+	string sigA = "1" + a.mantissa.to_string();
+	string sigB = "1" + b.mantissa.to_string();
 
 	//Xoa so 0 thua
-	int count = 0;
-	for (int i = sigA.length() - 1; i >= 0; i--) {
-		if (sigA[i] != '0')
-			break;
-		else
-			count++;
-	}
-	sigA.erase(sigA.length() - count);
+	this->clean(sigA, 0, 1, 1);
+	this->clean(sigB, 0, 1, 1);
 
-	count = 0;
-	for (int i = sigB.length() - 1; i >= 0; i--) {
-		if (sigB[i] != '0')
-			break;
-		else
-			count++;
-	}
-	sigB.erase(sigB.length() - count);
-
-	if (sigA.length() > 64)
-		sigA.erase(64);
-	if (sigB.length() > 64)
-		sigB.erase(64);
+	if (sigA.length() > 64)	sigA.erase(64);
+	if (sigB.length() > 64)	sigB.erase(64);
 
 	int nA = sigA.length() - 1;
 	int nB = sigB.length() - 1;
 
-
-
 	//Nhan 2 phan sig
-	QInt int_sigA;
+	QInt int_sigA, int_sigB;
 	int_sigA.BinToQInt(sigA);
-	QInt int_sigB;
 	int_sigB.BinToQInt(sigB);
 	QInt int_mulSig = int_sigA * int_sigB;
 
 	string sigMul = int_mulSig.toBinary(1);
-	
+
 	int n = sigMul.length() - nA - nB;
 	if (n > 1) {
-		exp += (n - 1);
+		E += (n - 1);
 	}
 	sigMul.erase(0, 1);
 
-	exp += 16383; //chuyen ve dang Bias
-
 	//Kiem tra truong hop 2 so khac dau -> tra ve so am
-	if (isNegativeA + isNegativeB == 1)
-		ans.data[127] = 1;
+	if (a.sign != b.sign)
+		ans.sign = 1;
 	else
-		ans.data[127] = 0;
+		ans.sign = 0;
 
 	//Ghi phan Exponent vao ans
-	for (int i = 1; i < 16; i++) {
-		ans.data[127-(16 - i)] = exp % 2;
-		exp /= 2;
-	}
+	ans.exponent = bitset<15>(E);
 
 	//Ghi phan gia tri vao ans
 	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
-		ans.data[127-(17 + i - 1)] = sigMul[i] == '1' ? 1 : 0;
+		ans.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
 
 	return ans;
+}
+
+int QFloat::compareBinaryString(string A, string B) {
+	QFloat tmp;
+	tmp.clean(A, 1, 0, 1);
+	tmp.clean(B, 1, 0, 1);
+
+	if (A.length() != B.length())
+		return A.length() > B.length() ? 1 : -1;
+
+	for (int i = 0; i < A.length(); i++) {
+		int bitA = A[i] - 48;
+		int bitB = B[i] - 48;
+
+		if (bitA > bitB)
+			return 1;
+		else if (bitB > bitA)
+			return -1;
+	}
+
+	return 0;
+}
+
+string QFloat::subBinaryString(string A, string B) {
+	//Can bang chieu dai 2 day bit
+	if (B.length() < A.length()) {
+		stringstream ss;
+		for (int i = 0; i < (A.length() - B.length()); i++)
+			ss << '0';
+		ss << B;
+		B = ss.str();
+	}
+
+	string result;
+	result.resize(A.length());
+	for (int i = 0; i < A.length(); i++)
+		result[i] = '0';
+	int ex = 0;
+
+	for (int i = A.length() - 1; i >= 0; i--) {
+			int abit = A[i] - 48;
+			int bbit = B[i] - 48;
+
+			if (abit - bbit - ex == 0)
+				ex = 0;
+			else if (abit - bbit - ex == -1) {
+				result[i] = '1';
+				ex = 1;
+			}
+			else if (abit - bbit - ex == 1) {
+				result[i] = '1';
+				ex = 0;
+			}
+			else if (abit - bbit - ex == -2) {
+				ex = 1;
+			}
+	}
+
+	return result;
 }

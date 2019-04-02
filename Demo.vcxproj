@@ -116,10 +116,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ManipulationModules.cpp" />
     <ClCompile Include="QFloat.cpp" />
     <ClCompile Include="QInt.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ManipulationModules.h" />
     <ClInclude Include="QFloat.h" />
     <ClInclude Include="QInt.h" />
   </ItemGroup>
