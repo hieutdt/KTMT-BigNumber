@@ -26,10 +26,8 @@ void PrepareQInt(QInt& target, string data, int base) {
 
 
 //Thuc hien phep tinh voi du lieu data1 va data2
-template<class T>
-void DoCalculate(T data1, string operation, T data2, ofstream& output) {
-	T result;
-
+void DoCalculate(QInt data1, string operation, QInt data2, ofstream& output) {
+	QInt result;
 	// Chon phep tinh tuong ung voi operation
 	{
 		if (operation == "+")
@@ -70,6 +68,32 @@ void DoCalculate(T data1, string operation, T data2, ofstream& output) {
 			int n = data2.QInt::data[3];
 			result = data1 << n;
 		}
+	}
+
+	output << result << endl;
+	cout << " = " << result << endl;
+}
+
+void DoCalculate(QFloat data1, string operation, QFloat data2, ofstream& output) {
+	QFloat result;
+	// Chon phep tinh tuong ung voi operation
+	{
+		/*if (operation == "+")
+		{
+			result = data1 + data2;
+		}
+		else if (operation == "-")
+		{
+			result = data1 - data2;
+		}
+		else*/ if (operation == "*")
+		{
+			result = data1 * data2;
+		}
+		//else if (operation == "/")
+		//{
+		//	result = data1 / data2;
+		//}
 	}
 
 	output << result << endl;
@@ -201,7 +225,7 @@ void SolveALine(ifstream& input, ofstream& output) {
 				float1.scanDec(data1);
 				float2.scanDec(data2);
 			}
-			//DoCalculate(float1, operat, float2, output);
+			DoCalculate(float1, operat, float2, output);
 		}
 		else{
 			//Chuan bi 2 so QInt de truyen vao
