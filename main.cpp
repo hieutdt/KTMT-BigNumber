@@ -17,7 +17,13 @@ int main() {
 	cout << endl;
 	QFloat c = a / b;
 	cout << "a / b = " << c << endl;
-	system("pause");
+	c = a + b;
+	cout << "a + b = " << c << endl;
+	c = a - b;
+	cout << "a - c = " << c << endl;
+	c = a * b;
+	cout << "a x b = " << c << endl;
+
 	return 0;
 }
 

@@ -34,6 +34,9 @@ public:
 	static QFloat infinity(); 
 	static QFloat NaN();
 
+	static int compareBinaryString(string A, string B);
+	static string subBinaryString(string A, string B);
+
 	void scanDec(string s); // nhap duoi dang so cham dong
 	void scanBin(string s); // nhap duoi dang nhi phan
 

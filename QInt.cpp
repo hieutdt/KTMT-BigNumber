@@ -1,5 +1,6 @@
 #include "QInt.h"
 #include <algorithm>
+#include <math.h>
 
 //PRIVATE METHODS///////////////////////////////////////
 

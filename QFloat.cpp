@@ -384,11 +384,39 @@ QFloat QFloat::operator/(QFloat &x)
 
 	// Thuc hien phep chia 2 mantissa
 
+	string divisor = "";
+	stringstream quotient;
+	for (int i = 0; i < sigA.length(); i++) {
+		divisor += sigA[i];
+		cout << "------ " << endl;
+		cout << "i = " << i << endl;
+		cout << "divisor = " << divisor << endl;
+		if (QFloat::compareBinaryString(divisor, sigB) >= 0) {
+			cout << "Lon hon " <<  sigB << endl;
+			quotient << '1';
+			divisor = QFloat::subBinaryString(divisor, sigB);
+			cout << "divisor sau khi tru: " << divisor << endl;
+		}
+		else {
+			quotient << '0';
+		}
+		cout << "------- " << endl;
+	}
+
+	string sigMul = quotient.str(); //mantissa
+	cout << "sigMul = " << sigMul << endl;
+	sigMul.erase(0, sigB.length());
+
+	cout << "sigA = " << sigA << endl;
+	cout << "sigB = " << sigB << endl;
+	cout << "sigMul = " << sigMul << endl;
 
 	result.exponent = bitset<15>(E);
-	/*for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
+	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
 		result.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
-*/
+
+	cout << result.toBinary(1) << endl;
+
 	return result;
 }
 
@@ -440,4 +468,63 @@ QFloat QFloat::operator*(QFloat &x) {
 		ans.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
 
 	return ans;
+}
+
+int QFloat::compareBinaryString(string A, string B) {
+	QFloat tmp;
+	tmp.clean(A, 1, 0, 1);
+	tmp.clean(B, 1, 0, 1);
+
+	if (A.length() != B.length())
+		return A.length() > B.length() ? 1 : -1;
+
+	for (int i = 0; i < A.length(); i++) {
+		int bitA = A[i] - 48;
+		int bitB = B[i] - 48;
+
+		if (bitA > bitB)
+			return 1;
+		else if (bitB > bitA)
+			return -1;
+	}
+
+	return 0;
+}
+
+string QFloat::subBinaryString(string A, string B) {
+	//Can bang chieu dai 2 day bit
+	if (B.length() < A.length()) {
+		stringstream ss;
+		for (int i = 0; i < (A.length() - B.length()); i++)
+			ss << '0';
+		ss << B;
+		B = ss.str();
+	}
+
+	string result;
+	result.resize(A.length());
+	for (int i = 0; i < A.length(); i++)
+		result[i] = '0';
+	int ex = 0;
+
+	for (int i = A.length() - 1; i >= 0; i--) {
+			int abit = A[i] - 48;
+			int bbit = B[i] - 48;
+
+			if (abit - bbit - ex == 0)
+				ex = 0;
+			else if (abit - bbit - ex == -1) {
+				result[i] = '1';
+				ex = 1;
+			}
+			else if (abit - bbit - ex == 1) {
+				result[i] = '1';
+				ex = 0;
+			}
+			else if (abit - bbit - ex == -2) {
+				ex = 1;
+			}
+	}
+
+	return result;
 }
