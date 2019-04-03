@@ -74,6 +74,15 @@ void QInt::addToOne() {
 	}
 }
 
+bool QInt::isZero() {
+	string bin = this->toBinary();
+	for (int i = 0; i < bin.length(); i++)
+		if (bin[i] != '0')
+			return false;
+	return true;
+}
+
+
 void QInt::DecToQInt(string val) {
 	bool isNegative = false;
 
@@ -361,6 +370,9 @@ QInt& QInt::operator=(const QInt &n) {
 QInt QInt::operator+(QInt &b) {
 	int ex = 0;
 	QInt ans;
+
+	if (b.isZero())
+		return *this;
 
 	for (int i = 0; i < 128; i++) {
 		int abit = this->getBit(i);

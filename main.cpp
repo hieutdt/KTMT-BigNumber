@@ -6,23 +6,14 @@ using namespace std;
 
 int main() {
 	QFloat a, b;
+
 	cout << "a = ";
 	cin >> a;
-	cout << "So vua nhap: " << a << endl;
-	cout << a.toBinary(1) << endl;
 	cout << "b = ";
 	cin >> b;
-	cout << "So vua nhap: " << b << endl;
-	cout << b.toBinary(1) << endl;
-	cout << endl;
-	QFloat c = a / b;
-	cout << "a / b = " << c << endl;
-	/*c = a + b;
+
+	QFloat c = a + b;
 	cout << "a + b = " << c << endl;
-	c = a - b;
-	cout << "a - c = " << c << endl;
-	c = a * b;
-	cout << "a x b = " << c << endl;*/
 
 	system("pause");
 	return 0;

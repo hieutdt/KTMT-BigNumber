@@ -18,6 +18,8 @@ public:
 	void changeBit(int pos);
 	int getBit(int post);
 	void addToOne();
+	bool isZero();
+
 	void DecToQInt(string val);
 	void BinToQInt(string val);
 	void HexToQInt(string val);
