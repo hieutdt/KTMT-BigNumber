@@ -101,12 +101,13 @@ void QFloat::scanDec(string s)
 	if (s[0] == '-' || s[0] == '+') s.erase(0, 1);
 
 	// Xoa so 0 thua ben trai va phai
-	this->clean(s);
+	
 
 	//Cat chuoi
 	string sInt="0", sFrac;
 	this->DevideFloat(s, sInt, sFrac);
-
+	this->clean(sInt,1,0);
+	this->clean(sFrac,0,1);
 	//Chuyen ve nhi phan
 	QInt qInt(sInt); // Chuyen phan nguyen ve nhi phan
 	string qFrac = ""; //  Chuyen phan thap phan ve nhi phan
@@ -377,6 +378,7 @@ QFloat QFloat::operator/(QFloat &x)
 
 	int E = a.getExponent() - b.getExponent() + 16383;
 
+
 	string sigA = "1" + a.mantissa.to_string();
 	string sigB = "1" + b.mantissa.to_string();
 
@@ -389,7 +391,6 @@ QFloat QFloat::operator/(QFloat &x)
 	stringstream quotient;
 	for (int i = 0; i < sigA.length(); i++) {
 		divisor += sigA[i];
-
 		if (QFloat::compareBinaryString(divisor, sigB) >= 0) {
 			quotient << '1';
 			divisor = QFloat::subBinaryString(divisor, sigB);
@@ -403,10 +404,9 @@ QFloat QFloat::operator/(QFloat &x)
 
 	result.exponent = bitset<15>(E);
 	
-	cout << sigMul << endl;
-	cout << divisor << endl;
-
+	
 	this->clean(divisor, 1, 0, 1);
+	
 
 	if (divisor != "") { //chia con du
 		dotPos = sigMul.length();
@@ -421,6 +421,7 @@ QFloat QFloat::operator/(QFloat &x)
 		}
 		sigMul = quotient.str();
 
+		
 		for (int i = 0; i < sigMul.length(); i++)
 			if (sigMul[i] == '1') {
 				dotPos = i + 1;
@@ -428,13 +429,20 @@ QFloat QFloat::operator/(QFloat &x)
 			}
 
 		sigMul.erase(0, dotPos);
-		E--;
+		E-= dotPos -2;
 		result.exponent = bitset<15>(E);
 	}
 	else {
-		sigMul.erase(0, 1);
+		dotPos = sigMul.length();
+		for (int i = 0; i < sigMul.length(); i++)
+			if (sigMul[i] == '1') {
+				dotPos = i + 1;
+				break;
+			}
+		sigMul.erase(0, dotPos);
+		if (dotPos > 5) E--;
 	}
-
+	result.exponent = bitset<15>(E);
 	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
 		result.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
 
