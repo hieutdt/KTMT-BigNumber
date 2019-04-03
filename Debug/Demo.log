@@ -1,6 +1,12 @@
 ﻿  QFloat.cpp
-d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(120): warning C4018: '>': signed/unsigned mismatch
-d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(151): warning C4018: '<': signed/unsigned mismatch
-d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(399): warning C4018: '<': signed/unsigned mismatch
-d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(449): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(121): warning C4018: '>': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(152): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(392): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(425): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(437): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(446): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(498): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(512): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(529): warning C4018: '<': signed/unsigned mismatch
+d:\documents\solutionvs\ktmt-bignumber\qfloat.cpp(537): warning C4018: '<': signed/unsigned mismatch
   Demo.vcxproj -> D:\Documents\SolutionVS\KTMT-BigNumber\Debug\Demo.exe

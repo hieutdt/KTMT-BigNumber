@@ -101,12 +101,13 @@ void QFloat::scanDec(string s)
 	if (s[0] == '-' || s[0] == '+') s.erase(0, 1);
 
 	// Xoa so 0 thua ben trai va phai
-	this->clean(s);
+	
 
 	//Cat chuoi
 	string sInt="0", sFrac;
 	this->DevideFloat(s, sInt, sFrac);
-
+	this->clean(sInt,1,0);
+	this->clean(sFrac,0,1);
 	//Chuyen ve nhi phan
 	QInt qInt(sInt); // Chuyen phan nguyen ve nhi phan
 	string qFrac = ""; //  Chuyen phan thap phan ve nhi phan
@@ -365,6 +366,8 @@ QFloat QFloat::operator-(QFloat & n)
 QFloat QFloat::operator/(QFloat &x)
 {
 	QFloat result, a = *this, b = x;
+	int dotPos = 0;
+
 	if (b.isZero()) {
 		if (a.isZero()) return QFloat::NaN();
 		else return QFloat::infinity();
@@ -375,6 +378,7 @@ QFloat QFloat::operator/(QFloat &x)
 
 	int E = a.getExponent() - b.getExponent() + 16383;
 
+
 	string sigA = "1" + a.mantissa.to_string();
 	string sigB = "1" + b.mantissa.to_string();
 
@@ -383,7 +387,6 @@ QFloat QFloat::operator/(QFloat &x)
 	this->clean(sigB, 0, 1, 1);
 
 	// Thuc hien phep chia 2 mantissa
-
 	string divisor = "";
 	stringstream quotient;
 	for (int i = 0; i < sigA.length(); i++) {
@@ -398,8 +401,47 @@ QFloat QFloat::operator/(QFloat &x)
 	}
 
 	string sigMul = quotient.str(); //mantissa
-	sigMul.erase(0, sigB.length());
 
+	result.exponent = bitset<15>(E);
+	
+	
+	this->clean(divisor, 1, 0, 1);
+	
+
+	if (divisor != "") { //chia con du
+		dotPos = sigMul.length();
+		for (int i = sigA.length() - 1; i <= 111; i++) {
+			divisor += '0';
+			if (QFloat::compareBinaryString(divisor, sigB) == 1) {
+				quotient << '1';
+				divisor = QFloat::subBinaryString(divisor, sigB);
+			} else {
+				quotient << '0';
+			}
+		}
+		sigMul = quotient.str();
+
+		
+		for (int i = 0; i < sigMul.length(); i++)
+			if (sigMul[i] == '1') {
+				dotPos = i + 1;
+				break;
+			}
+
+		sigMul.erase(0, dotPos);
+		E-= dotPos -2;
+		result.exponent = bitset<15>(E);
+	}
+	else {
+		dotPos = sigMul.length();
+		for (int i = 0; i < sigMul.length(); i++)
+			if (sigMul[i] == '1') {
+				dotPos = i + 1;
+				break;
+			}
+		sigMul.erase(0, dotPos);
+		if (dotPos > 5) E--;
+	}
 	result.exponent = bitset<15>(E);
 	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
 		result.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
