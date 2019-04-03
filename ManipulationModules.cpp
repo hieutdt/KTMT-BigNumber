@@ -4,8 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#define OUTBASE_FLOA 0
-#define OUTBASE_BNFL 1
 #define OUTBASE_BINA 2 
 #define OUTBASE_DECI 10
 #define OUTBASE_HEXA 16
@@ -87,6 +85,9 @@ void DoCalculate(QInt data1, string operation, QInt data2, ofstream& output, int
 		if (lastZero > 0) {
 			finalRes.erase(0, lastZero);
 		}
+		if (finalRes.length() == 0) {
+			finalRes = "0";
+		}
 		output << finalRes << endl;
 		cout << " = " << finalRes << endl;
 		return;
@@ -126,10 +127,10 @@ void DoCalculate(QFloat data1, string operation, QFloat data2, ofstream& output,
 			result = data1 / data2;
 		}
 	}
-	if (outputBase == OUTBASE_BNFL)
+	if (outputBase == OUTBASE_BINA)
 	{
 		output << result.toBinary() << endl;
-		cout << " = " << result << endl;
+		cout << " = " << result.toBinary() << endl;
 	}
 	else
 	{
@@ -149,8 +150,7 @@ void TransferBase(int fromBase, int toBase, string data, ofstream& output) {
 		result = tmpQInt.toBinary();
 		break;
 	case 10:
-		output << tmpQInt << endl;
-		return;
+		result = tmpQInt.toString();
 		break;
 	case 16:
 		result = tmpQInt.toHexa();
@@ -217,7 +217,7 @@ void SolveIntLine(ifstream& input, ofstream& output) {
 		fromBase = stoi(aLine.substr(0, spacePos[0]));
 		toBase = stoi(aLine.substr(spacePos[0] + 1, spacePos[1] - spacePos[0] - 1));
 		string data = aLine.substr(spacePos[1] + 1, aLine.size() - spacePos[1] - 1);
-		cout << fromBase << " " << toBase << " " << data << endl;
+		cout << fromBase << " " << toBase << " " << data;
 		TransferBase(fromBase, toBase, data, output);
 	}
 
@@ -320,7 +320,7 @@ void SolveFloatLine(ifstream& input, ofstream& output) {
 		cout << base << " " << data1 << " " << operat << " " << data2;
 
 		QFloat float1, float2;
-		int outBase = OUTBASE_BNFL;
+		int outBase = OUTBASE_DECI;
 		//Thuc hien phep tinh
 		if (isBinFloat)
 		{
