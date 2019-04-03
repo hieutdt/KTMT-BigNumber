@@ -172,6 +172,8 @@ string QFloat::toString()
 	int E = this->getExponent();
 
 	if (this->isZero()) return "0";
+	if (this->isInfinity()) return "Infinity";
+	if (this->isNaN()) return "NaN";
 
 	if (E >= 0) { //So lon hon 1
 		bInt = '1' + this->mantissa.to_string().substr(0, E); //Phan nguyen o dang Binary
