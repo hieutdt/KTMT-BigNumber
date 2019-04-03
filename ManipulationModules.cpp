@@ -4,6 +4,12 @@
 #include <iostream>
 #include <vector>
 
+#define OUTBASE_FLOA 0
+#define OUTBASE_BNFL 1
+#define OUTBASE_BINA 2 
+#define OUTBASE_DECI 10
+#define OUTBASE_HEXA 16
+
 using namespace std;
 
 void PrepareQInt(QInt& target, string data, int base) {
@@ -26,7 +32,7 @@ void PrepareQInt(QInt& target, string data, int base) {
 
 
 //Thuc hien phep tinh voi du lieu data1 va data2
-void DoCalculate(QInt data1, string operation, QInt data2, ofstream& output) {
+void DoCalculate(QInt data1, string operation, QInt data2, ofstream& output, int outputBase) {
 	QInt result;
 	// Chon phep tinh tuong ung voi operation
 	{
@@ -70,11 +76,36 @@ void DoCalculate(QInt data1, string operation, QInt data2, ofstream& output) {
 		}
 	}
 
-	output << result << endl;
-	cout << " = " << result << endl;
+	if (outputBase == OUTBASE_BINA)
+	{
+		string finalRes = result.toBinary();
+		int lastZero = 0;
+		while (finalRes[lastZero] == '0')
+		{
+			lastZero++;
+		}
+		if (lastZero > 0) {
+			finalRes.erase(0, lastZero);
+		}
+		output << finalRes << endl;
+		cout << " = " << finalRes << endl;
+		return;
+	}
+	if (outputBase == OUTBASE_DECI)
+	{
+		output << result << endl;
+		cout << " = " << result << endl;
+		return;
+	}
+	if (outputBase == OUTBASE_HEXA)
+	{
+		output << result.toHexa() << endl;
+		cout << " = " << result.toHexa() << endl;
+		return;
+	}
 }
 
-void DoCalculate(QFloat data1, string operation, QFloat data2, ofstream& output) {
+void DoCalculate(QFloat data1, string operation, QFloat data2, ofstream& output, int outputBase) {
 	QFloat result;
 	// Chon phep tinh tuong ung voi operation
 	{
@@ -95,9 +126,16 @@ void DoCalculate(QFloat data1, string operation, QFloat data2, ofstream& output)
 			result = data1 / data2;
 		}
 	}
-
-	output << result << endl;
-	cout << " = " << result << endl;
+	if (outputBase == OUTBASE_BNFL)
+	{
+		output << result.toBinary() << endl;
+		cout << " = " << result << endl;
+	}
+	else
+	{
+		output << result << endl;
+		cout << " = " << result << endl;
+	}
 }
 
 //Thuc hien chuyen he so tu co so nay sang co so khac voi du lieu la string
@@ -122,11 +160,12 @@ void TransferBase(int fromBase, int toBase, string data, ofstream& output) {
 		break;
 	}
 	output << result << endl;
+	cout << " = " << result << endl;
 }
  
 
 //Giai mot hang trong file
-void SolveALine(ifstream& input, ofstream& output) {
+void SolveIntLine(ifstream& input, ofstream& output) {
 	string aLine;
 	//Doc nguyen string
 	getline(input, aLine);
@@ -186,19 +225,7 @@ void SolveALine(ifstream& input, ofstream& output) {
 
 	if (spacePos.size() == 3)
 	{
-		//Doc vao he so phep tinh. "F" la floating point, "2F" la bieu dien nhi phan cua dau cham dong
-		bool isQFloat = false;
-		string baseName = aLine.substr(0, spacePos[0]);
-		int base;
-		if (baseName == "F" || baseName == "f" ||
-			baseName == "2F" || baseName == "2f")
-		{
-			isQFloat = true;
-		}
-		else
-		{
-			base = stoi(aLine.substr(0, spacePos[0]));
-		}
+		int base = stoi(aLine.substr(0, spacePos[0]));
 
 		//Doc vao du lieu cua 2 so va phep tinh
 		string data1 = aLine.substr(spacePos[0] + 1, spacePos[1] - spacePos[0] - 1);
@@ -210,40 +237,154 @@ void SolveALine(ifstream& input, ofstream& output) {
 		//Check the reading
 		cout << base << " " << data1 << " " << operat << " " << data2;
 
-		//Thuc hien phep tinh
-		if (isQFloat)
-		{
-			//Chuan bi 2 so QFloat de truyen vao
-			QFloat float1, float2;
-			if (baseName[0] == '2')
-			{
-				float1.scanBin(data1);
-				float2.scanBin(data2);
-			}
-			else
-			{
-				float1.scanDec(data1);
-				float2.scanDec(data2);
-			}
-			DoCalculate(float1, operat, float2, output);
-		}
-		else{
-			//Chuan bi 2 so QInt de truyen vao
-			QInt int1, int2;
-			PrepareQInt(int1, data1, base);
-			PrepareQInt(int2, data2, base);
-			DoCalculate(int1, operat, int2, output);
-		}
+		//Chuan bi 2 so QInt de truyen vao
+		QInt int1, int2;
+		PrepareQInt(int1, data1, base);
+		PrepareQInt(int2, data2, base);
+		DoCalculate(int1, operat, int2, output, base);
 	}
 } 
 
-void solveAFile(string inPath, string outPath) {
+void SolveFloatLine(ifstream& input, ofstream& output) {
+	string aLine;
+	//Doc nguyen string
+	getline(input, aLine);
+
+	//Xoa dau cach o dau, o cuoi, dau cach doi
+	int fukSpaces = -1;
+	while (aLine[fukSpaces + 1] == ' ')
+	{
+		fukSpaces++;
+	}
+	if (fukSpaces > -1) {
+		aLine.erase(0, fukSpaces + 1);
+	}
+	fukSpaces = aLine.length();
+	while (aLine[fukSpaces - 1] == ' ')
+	{
+		fukSpaces--;
+	}
+	if (fukSpaces < aLine.length()) {
+		aLine.erase(fukSpaces, aLine.length() - fukSpaces);
+	}
+	for (unsigned int i = 1; i < aLine.length() - 1; i++)
+	{
+		while (aLine[i] == ' ' && aLine[i + 1] == ' ')
+		{
+			aLine.erase(i + 1, 1);
+		}
+	}
+
+	//Luu lai vi tri cac dau cach trong string
+	vector<int> spacePos;
+	for (unsigned int i = 0; i < aLine.length(); i++)
+	{
+		if (aLine[i] == ' ')
+		{
+			spacePos.push_back(i);
+		}
+	}
+	if (spacePos.size() < 2 || spacePos.size() > 3)
+	{
+		throw "Invalid data count.";
+	}
+
+	// 3 dau cach -> phep tinh
+
+	if (spacePos.size() == 3)
+	{
+		string base = aLine.substr(0, spacePos[0]);
+		bool isBinFloat = false;
+		if (base == "2F" || base == "2f")
+		{
+			isBinFloat = true;
+		}
+		else
+		{
+			if (base != "F" && base != "f")
+			{
+				cout << "Unknown Base." << endl;
+				output << "Unknown Base." << endl;
+			}
+
+		}
+
+		//Doc vao du lieu cua 2 so va phep tinh
+		string data1 = aLine.substr(spacePos[0] + 1, spacePos[1] - spacePos[0] - 1);
+		//operation sign
+		string operat = aLine.substr(spacePos[1] + 1, spacePos[2] - spacePos[1] - 1);
+		//the second operant
+		string data2 = aLine.substr(spacePos[2] + 1, aLine.size() - spacePos[2] - 1);
+
+		// Show the operation
+		cout << base << " " << data1 << " " << operat << " " << data2;
+
+		QFloat float1, float2;
+		int outBase = OUTBASE_BNFL;
+		//Thuc hien phep tinh
+		if (isBinFloat)
+		{
+			float1.scanBin(data1);
+			float2.scanBin(data2);
+			outBase = OUTBASE_BINA;
+		}
+		else {
+			float1.scanDec(data1);
+			float2.scanDec(data2);
+		}
+		DoCalculate(float1, operat, float2, output,outBase);
+	}
+}
+
+void solveAFile(string inPath, string outPath, int type) {
 	ifstream input;
 	input.open(inPath.data());
 	ofstream output;
 	output.open(outPath.data());
-	while (!input.eof())
-	{
-		SolveALine(input, output);
+	if (type == 1) {
+		while (!input.eof())
+		{
+			SolveIntLine(input, output);
+
+		}
 	}
+	else
+	{
+		while (!input.eof())
+		{
+			SolveFloatLine(input, output);
+		}
+	}
+}
+
+bool CheckFileExistence(string fPath) {
+	ifstream inp(fPath);
+	if (!inp)
+	{
+		SHOW_PROGRAM_PARAMETERS
+			cout << "Input file not existing." << endl;
+		return false;
+	}
+}
+
+bool CheckArguments(int argc, char ** argv) {
+	if (argc == 1) {
+		return true;
+	}
+	if (argc != 4) {
+		cout << "Parameter count is not valid." << endl;
+		SHOW_PROGRAM_PARAMETERS
+		return false;
+	}
+	if (!CheckFileExistence(argv[1]))
+	{
+		return false;
+	}
+	int typeStrLen = strlen(argv[3]);
+	if ((argv[3][0] != '1' && argv[3][0] != '2')||(typeStrLen != 1))
+	{
+		SHOW_PROGRAM_PARAMETERS
+		cout << "<type> must be 1 or 2." << endl;
+	}
+	return true;
 }
