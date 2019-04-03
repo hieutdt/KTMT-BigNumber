@@ -385,31 +385,19 @@ QFloat QFloat::operator/(QFloat &x)
 	this->clean(sigB, 0, 1, 1);
 
 	// Thuc hien phep chia 2 mantissa
-
-	cout << "sigA = " << sigA << endl;
-	cout << "sigB = " << sigB << endl;
-
 	string divisor = "";
 	stringstream quotient;
 	for (int i = 0; i < sigA.length(); i++) {
-		cout << "------ i = " << i << " -------------" << endl;
 		divisor += sigA[i];
-		cout << "Divisor = " << divisor << endl;
-		
+
 		if (QFloat::compareBinaryString(divisor, sigB) >= 0) {
-			cout << "Lon hon sigB" << endl;
 			quotient << '1';
 			divisor = QFloat::subBinaryString(divisor, sigB);
-			cout << "Divisor sau khi tru = " << divisor << endl;
 		}
 		else {
 			quotient << '0';
 		}
-
-		cout << "Quotient = " << quotient.str() << endl;
-		cout << "-------------------------------------" << endl;
 	}
-
 
 	string sigMul = quotient.str(); //mantissa
 
@@ -421,27 +409,30 @@ QFloat QFloat::operator/(QFloat &x)
 	this->clean(divisor, 1, 0, 1);
 
 	if (divisor != "") { //chia con du
-		cout << "Con du" << endl;
 		dotPos = sigMul.length();
-		cout << "dotPos = " << dotPos << endl;
 		for (int i = sigA.length() - 1; i <= 111; i++) {
 			divisor += '0';
-			cout << "-------- i = " << i << "--------------" << endl;
-			cout << "divisor = " << divisor << endl;
 			if (QFloat::compareBinaryString(divisor, sigB) == 1) {
-				cout << "Lon hon sigB" << endl;
 				quotient << '1';
 				divisor = QFloat::subBinaryString(divisor, sigB);
-				cout << "divisor sau khi tru = " << divisor << endl;
 			} else {
 				quotient << '0';
 			}
 		}
 		sigMul = quotient.str();
-		sigMul.erase(0, sigB.length());
 
-		E -= (dotPos); //cai nay sai
+		for (int i = 0; i < sigMul.length(); i++)
+			if (sigMul[i] == '1') {
+				dotPos = i + 1;
+				break;
+			}
+
+		sigMul.erase(0, dotPos);
+		E--;
 		result.exponent = bitset<15>(E);
+	}
+	else {
+		sigMul.erase(0, 1);
 	}
 
 	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
