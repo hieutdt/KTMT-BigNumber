@@ -165,10 +165,12 @@ void QFloat::scanBin(string s)
 void QFloat::round(string &a) {
 	stringstream ss;
 	int pos = 0;
+	bool flag = false;
 	for (int i = 0; i < a.length(); i++) {
 		if (a[i] == '9' && a[i + 1] == '9' && a[i + 2] == '9' && a[i + 3] == '9') {
 			pos = i;
 			int ex = 1;
+			flag = true;
 			for (int j = i - 1; j >= 0; j--) {
 				int digit = a[j] - 48;
 				if (digit < 10) {
@@ -185,9 +187,11 @@ void QFloat::round(string &a) {
 		}
 	}
 
-	for (int i = 0; i < pos; i++)
-		ss << a[i];
-	a = ss.str();
+	if (flag) {
+		for (int i = 0; i < pos; i++)
+			ss << a[i];
+		a = ss.str();
+	} 
 }
 
 
@@ -266,7 +270,7 @@ bool QFloat::operator<(QFloat & b)
 ostream & operator<<(ostream & os, QFloat & n)
 {
 	string res = n.toString();
-	//n.round(res);
+	n.round(res);
 	os << res;
 	return os;
 }
@@ -414,8 +418,6 @@ QFloat QFloat::operator/(QFloat &x)
 
 	E = a.getExponent() - b.getExponent() + 16383;
 
-	cout << "E ban dau = " << E << endl;
-
 	sigA = "1" + a.mantissa.to_string();
 	sigB = "1" + b.mantissa.to_string();
 	//Xoa so 0 thua
@@ -484,8 +486,6 @@ QFloat QFloat::operator/(QFloat &x)
 	result.exponent = bitset<15>(E);
 	for (int i = 0; i < (ans.length() <= 111 ? ans.length() : 111); i++)
 		result.mantissa[111 - i] = (ans[i] == '1' ? 1 : 0);
-
-	cout << result.toBinary(1) << endl;
 
 	return result;
 }
