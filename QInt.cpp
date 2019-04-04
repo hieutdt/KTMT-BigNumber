@@ -543,6 +543,9 @@ QInt QInt::operator*(QInt b) {
 	string B = b.toBinary();
 	QInt res;
 
+	if (b.isZero())
+		return *this;
+
 	bool isNegativeA = (A[0] == '1');
 	bool isNegativeB = (B[0] == '1');
 
@@ -662,6 +665,9 @@ QInt QInt::operator/(QInt m) {
 	stringstream ss;
 	string ans;
 	QInt res;
+
+	if (m.isZero())
+		throw "Division by Zero condition!";
 
 	bool isNegativeQ = (Q[0] == '1');
 	bool isNegativeM = (M[0] == '1');
