@@ -48,7 +48,17 @@ void DoCalculate(QInt data1, string operation, QInt data2, ofstream& output, int
 		}
 		else if (operation == "/")
 		{
-			result = data1 / data2;
+			try
+			{
+				result = data1 / data2;
+
+			}
+			catch (char * ex)
+			{
+				output << ex << endl;
+				cout << " = " << ex << endl;
+				return;
+			}
 		}
 		else if (operation == "&")
 		{
@@ -387,4 +397,64 @@ bool CheckArguments(int argc, char ** argv) {
 		cout << "<type> must be 1 or 2." << endl;
 	}
 	return true;
+}
+
+
+void ExecuteScreen() {
+	int choice = 0, type;
+	string inPath, outPath;
+	string userInput;
+	ofstream tmpOut;
+	char c;
+	while (choice != 4)
+	{
+		cout << " --- Bang chon ---" << endl;
+		cout << "1. Phep tinh voi so nguyen lon" << endl;
+		cout << "2. Phep tinh voi so thuc do chinh xac cao" << endl;
+		cout << "3. Doc Du lieu dau vao tu tap tin" << endl;
+		cout << "4. THOAT" << endl;
+		cout << " > Lua chon (1->4): ";
+		cin >> choice;
+		cin.clear();
+		cin.ignore(10000, '\n');
+		switch (choice)
+		{
+		case 1:
+		case 2:
+			inPath = "tempInput.txt";
+			outPath = "tempOutput.txt";
+			cout << "Phep tinh:" << endl;
+			cout << ">> ";
+			getline(cin, userInput);
+			tmpOut.open(inPath);
+			tmpOut << userInput;
+			tmpOut.close();
+			solveAFile(inPath, outPath, choice);
+			break;
+		case 3:
+			cout << "Input file: ";
+			std::getline(cin, inPath);
+			while (!CheckFileExistence(inPath))
+			{
+				cout << "Input file: ";
+				std::getline(cin, inPath);
+			}
+			cout << "Output file: ";
+			std::getline(cin, outPath);
+			cout << "Type (1-Int, 2-Float): ";
+			cin >> type;
+			while (type != 1 && type != 2)
+			{
+				cout << "Type (1-Int, 2-Float): ";
+				cin >> type;
+			}
+			solveAFile(inPath, outPath, type);
+			break;
+		case 4:
+			break;
+		default:
+			cout << endl << "/!\\ LUA CHON TU 1 DEN 4" << endl << endl;
+			break;
+		}
+	}
 }

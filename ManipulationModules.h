@@ -6,3 +6,5 @@
 bool CheckFileExistence(std::string fPath);
 bool CheckArguments(int argc, char **argv);
 void solveAFile(std::string, std::string, int type);
+
+void ExecuteScreen();

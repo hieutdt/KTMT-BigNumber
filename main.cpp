@@ -14,22 +14,8 @@ int main(int argc, char **argv) {
 	int type;
 	if (argc == 1)
 	{
-		cout << "Input file: ";
-		std::getline(cin, inPath);
-		while (!CheckFileExistence(inPath))
-		{
-			cout << "Input file: ";
-			std::getline(cin, inPath);
-		}
-		cout << "Output file: ";
-		std::getline(cin, outPath);
-		cout << "Type (1-Int, 2-Float): ";
-		cin >> type;
-		while (type != 1 && type != 2)
-		{
-			cout << "Type (1-Int, 2-Float): ";
-			cin >> type;
-		}
+		ExecuteScreen();
+		return 0;
 	}
 	else
 	{
