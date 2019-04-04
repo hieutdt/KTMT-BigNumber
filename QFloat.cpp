@@ -1,4 +1,4 @@
-#include "QFloat.h"
+﻿#include "QFloat.h"
 #include "QInt.h"
 
 void QFloat::DevideFloat(string s, string & sInt, string & sFrac)
@@ -162,6 +162,38 @@ void QFloat::scanBin(string s)
 	this->mantissa = bitset<112>(s.substr(16));
 }
 
+void QFloat::round(string &a) {
+	stringstream ss;
+	int pos = 0;
+	bool flag = false;
+	for (int i = 0; i < a.length(); i++) {
+		if (a[i] == '9' && a[i + 1] == '9' && a[i + 2] == '9' && a[i + 3] == '9') {
+			pos = i;
+			int ex = 1;
+			flag = true;
+			for (int j = i - 1; j >= 0; j--) {
+				int digit = a[j] - 48;
+				if (digit < 10) {
+					digit += ex;
+					ex = 0;
+					a[j] = digit + 48;
+					break;
+				}
+				else {
+					a[j] = '0';
+				}
+			}
+			break;
+		}
+	}
+
+	if (flag) {
+		for (int i = 0; i < pos; i++)
+			ss << a[i];
+		a = ss.str();
+	} 
+}
+
 
 string QFloat::toString()
 {
@@ -238,6 +270,7 @@ bool QFloat::operator<(QFloat & b)
 ostream & operator<<(ostream & os, QFloat & n)
 {
 	string res = n.toString();
+	n.round(res);
 	os << res;
 	return os;
 }
@@ -368,87 +401,91 @@ QFloat QFloat::operator-(QFloat & n)
 QFloat QFloat::operator/(QFloat &x)
 {
 	QFloat result, a = *this, b = x;
-	int dotPos = 0;
+	int E;
+	string sigA, sigB;
+	string divisor;
+	stringstream quotient;
+	string ans;
 
+	//Cac truong hop dac biet
 	if (b.isZero()) {
 		if (a.isZero()) return QFloat::NaN();
 		else return QFloat::infinity();
 	}
 	else if (a.isZero()) return QFloat::zero();
 
-	result.sign = a.sign ^ b.sign;
+	result.sign = a.sign ^ b.sign; //dấu của kết quả
 
-	int E = a.getExponent() - b.getExponent() + 16383;
+	E = a.getExponent() - b.getExponent() + 16383;
 
-
-	string sigA = "1" + a.mantissa.to_string();
-	string sigB = "1" + b.mantissa.to_string();
-
+	sigA = "1" + a.mantissa.to_string();
+	sigB = "1" + b.mantissa.to_string();
 	//Xoa so 0 thua
 	this->clean(sigA, 0, 1, 1);
 	this->clean(sigB, 0, 1, 1);
 
-	// Thuc hien phep chia 2 mantissa
-	string divisor = "";
-	stringstream quotient;
+	//Can bang do dai 2 day tri
+	if (sigA.length() > sigB.length()) {
+		for (int i = 0; i < sigB.length() - sigA.length(); i++)
+			sigB += '0';
+	}
+	else if (sigA.length() < sigB.length()) {
+		for (int i = 0; i < sigA.length() - sigB.length(); i++)
+			sigA += '0';
+	}
+
+	divisor = ""; //gan so bi chia la sigA, so chia luon la sigB
+	
+	//chia nguyên trước
 	for (int i = 0; i < sigA.length(); i++) {
 		divisor += sigA[i];
 		if (QFloat::compareBinaryString(divisor, sigB) >= 0) {
 			quotient << '1';
 			divisor = QFloat::subBinaryString(divisor, sigB);
 		}
-		else {
+		else
 			quotient << '0';
-		}
 	}
-
-	string sigMul = quotient.str(); //mantissa
-
-	result.exponent = bitset<15>(E);
 	
-	
-	this->clean(divisor, 1, 0, 1);
-	
+	//Xoá số 0 thừa bên trái, trừa lại 1 số
+	ans = quotient.str();
+	this->clean(ans, 1, 0, 1);
+	if (ans == "")
+		ans += '0';
 
-	if (divisor != "") { //chia con du
-		dotPos = sigMul.length();
-		for (int i = sigA.length() - 1; i <= 111; i++) {
+	quotient.str("");
+	quotient << ans;
+
+	if (divisor != "") { //Chia tới hết nếu còn dư
+		for (int i = ans.length() - 1; i <= 111; i++) {
 			divisor += '0';
-			if (QFloat::compareBinaryString(divisor, sigB) == 1) {
+			if (QFloat::compareBinaryString(divisor, sigB) >= 0) {
 				quotient << '1';
 				divisor = QFloat::subBinaryString(divisor, sigB);
 			} else {
 				quotient << '0';
 			}
 		}
-		sigMul = quotient.str();
+	}
 
-		
-		for (int i = 0; i < sigMul.length(); i++)
-			if (sigMul[i] == '1') {
-				dotPos = i + 1;
+	ans = quotient.str();
+
+	//Xác định exponent
+	if (ans[0] != '1') {
+		for (int i = 0; i < ans.length(); i++)
+			if (ans[i] == '1') {
+				E -= i;
+				cout << "Do doi = " << i << endl;
+				ans.erase(0, i + 1);
 				break;
 			}
+	}
+	else
+		ans.erase(0, 1);
 
-		sigMul.erase(0, dotPos);
-		E-= dotPos -2;
-		result.exponent = bitset<15>(E);
-	}
-	else {
-		dotPos = sigMul.length();
-		for (int i = 0; i < sigMul.length(); i++)
-			if (sigMul[i] == '1') {
-				dotPos = i + 1;
-				break;
-			}
-		sigMul.erase(0, dotPos);
-		if (dotPos > 5) E--;
-	}
 	result.exponent = bitset<15>(E);
-	for (int i = 0; i < (sigMul.length() <= 111 ? sigMul.length() : 111); i++)
-		result.mantissa[111 - i] = (sigMul[i] == '1' ? 1 : 0);
-
-	cout << result.toBinary(1) << endl;
+	for (int i = 0; i < (ans.length() <= 111 ? ans.length() : 111); i++)
+		result.mantissa[111 - i] = (ans[i] == '1' ? 1 : 0);
 
 	return result;
 }

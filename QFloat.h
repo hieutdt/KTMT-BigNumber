@@ -26,6 +26,7 @@ private:
 	bool isInfinity(); // So vo cung
 	bool isNaN(); //S bao loi NaN - Not a Number
 	void clean(string &s, bool isLeft = 1, bool isRight = 1, bool deep = 0); // Xoa so 0 thua;
+	void round(string &a);
 public:
 	QFloat();
 	QFloat(string value);
